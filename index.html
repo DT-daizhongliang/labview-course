@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LabVIEW 从入门到项目实战 - 完整学习路线</title>
+<style>
+:root {
+    --primary: #1a73e8;
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --s1:#3b82f6; --s2:#06b6d4; --s3:#8b5cf6; --s4:#f59e0b; --s5:#10b981; --s6:#ef4444;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","微软雅黑",sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.7;
+}
+
+/* Header */
+.header {
+    background:linear-gradient(135deg,#0c1929 0%,#132742 40%,#1a3a5c 100%);
+    color:#fff; padding:60px 20px 50px; text-align:center;
+    position:relative; overflow:hidden;
+}
+.header::before {
+    content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+    background:radial-gradient(circle at 30% 70%,rgba(59,130,246,0.08) 0%,transparent 60%),
+              radial-gradient(circle at 70% 30%,rgba(6,182,212,0.06) 0%,transparent 60%);
+    animation:glow 8s ease-in-out infinite alternate;
+}
+@keyframes glow { 0%{transform:translate(0,0)} 100%{transform:translate(20px,-20px)} }
+.header-content { position:relative; z-index:1; }
+.header .icon { font-size:56px; margin-bottom:12px; display:block; }
+.header h1 { font-size:2.4rem; font-weight:700; letter-spacing:1px; margin-bottom:8px; }
+.header .subtitle { font-size:1.1rem; color:#94a3b8; }
+
+/* Stats */
+.stats-bar {
+    max-width:1000px; margin:-28px auto 0; display:grid;
+    grid-template-columns:repeat(4,1fr); gap:16px; padding:0 20px;
+    position:relative; z-index:2;
+}
+.stat-card {
+    background:var(--card); border-radius:12px; padding:20px 16px;
+    text-align:center; box-shadow:0 2px 12px rgba(0,0,0,.06); border:1px solid var(--border);
+}
+.stat-card .num { font-size:1.8rem; font-weight:700; color:var(--primary); }
+.stat-card .label { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+/* Container */
+.container { max-width:1000px; margin:0 auto; padding:40px 20px 60px; }
+
+/* Section Title */
+.section-title { text-align:center; margin-bottom:36px; }
+.section-title h2 { font-size:1.8rem; font-weight:700; color:var(--text); }
+.section-title p { color:var(--muted); font-size:.95rem; margin-top:6px; }
+
+/* Stage */
+.stage {
+    background:var(--card); border-radius:16px; margin-bottom:28px;
+    box-shadow:0 2px 16px rgba(0,0,0,.04); border:1px solid var(--border);
+    overflow:hidden; transition:box-shadow .3s;
+}
+.stage:hover { box-shadow:0 4px 24px rgba(0,0,0,.08); }
+.stage-header {
+    display:flex; align-items:center; gap:16px;
+    padding:22px 28px; cursor:pointer; user-select:none;
+}
+.stage-num {
+    width:48px; height:48px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; font-weight:700; color:#fff; flex-shrink:0;
+}
+.stage:nth-child(1) .stage-num { background:var(--s1); }
+.stage:nth-child(2) .stage-num { background:var(--s2); }
+.stage:nth-child(3) .stage-num { background:var(--s3); }
+.stage:nth-child(4) .stage-num { background:var(--s4); }
+.stage:nth-child(5) .stage-num { background:var(--s5); }
+.stage:nth-child(6) .stage-num { background:var(--s6); }
+
+.stage-info { flex:1; }
+.stage-info h3 { font-size:1.15rem; font-weight:700; }
+.stage-time { font-size:.85rem; color:var(--muted); margin-top:2px; }
+.stage-arrow { font-size:1.2rem; color:#94a3b8; transition:transform .3s; }
+.stage.open .stage-arrow { transform:rotate(180deg); }
+.stage-body { display:none; border-top:1px solid var(--border); }
+.stage.open .stage-body { display:block; }
+
+/* ===== Detail Section (inside stage-body) ===== */
+.detail-section {
+    padding:10px 28px 8px;
+}
+.detail-section h4 {
+    font-size:1rem; font-weight:700; color:var(--text);
+    padding:8px 0 6px; border-bottom:2px dashed var(--border);
+    margin-bottom:10px;
+}
+.detail-section h4 .dot {
+    display:inline-block; width:10px; height:10px; border-radius:50%;
+    margin-right:8px; vertical-align:middle;
+}
+.detail-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(430px, 1fr));
+    gap:20px;
+}
+.detail-block {
+    background:#f8fafc; border:1px solid var(--border);
+    border-radius:10px; padding:16px 20px;
+    transition:all .2s;
+}
+.detail-block:hover { background:#fff; border-color:#93c5fd; box-shadow:0 2px 8px rgba(59,130,246,.06); }
+.detail-block h5 { font-size:.93rem; font-weight:700; margin-bottom:8px; color:#1e40af; }
+.detail-block .desc { font-size:.84rem; color:var(--muted); margin-bottom:8px; line-height:1.65; }
+.detail-block ul {
+    list-style:none; padding:0; font-size:.83rem; color:var(--text);
+}
+.detail-block ul li { padding:3px 0; padding-left:16px; position:relative; }
+.detail-block ul li::before {
+    content:""; position:absolute; left:0; top:10px;
+    width:6px; height:6px; border-radius:50%; background:var(--primary);
+}
+.detail-block .tag-row { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+.detail-block .tag {
+    display:inline-block; background:#e0e7ff; color:#3730a3;
+    font-size:.75rem; padding:2px 8px; border-radius:10px; font-weight:500;
+}
+
+/* Practice */
+.practice-block {
+    margin:10px 28px 24px;
+    background:linear-gradient(135deg,#eff6ff,#f0f9ff);
+    border:1px solid #bfdbfe; border-radius:12px; padding:20px 24px;
+}
+.practice-block h4 { font-size:1rem; font-weight:700; margin-bottom:8px; color:#1e40af; }
+.practice-block .projects { display:flex; flex-wrap:wrap; gap:8px; }
+.practice-block .project-tag {
+    background:#fff; border:1px solid #93c5fd; border-radius:20px;
+    padding:5px 14px; font-size:.83rem; color:#1e40af; font-weight:500;
+}
+
+/* ===== Daily Plan ===== */
+.daily-plan {
+    margin:10px 28px 16px;
+    background:#fffbeb; border:1px solid #fde68a;
+    border-radius:12px; padding:18px 22px;
+}
+.daily-plan h4 { font-size:.95rem; font-weight:700; color:#b45309; margin-bottom:8px; }
+.daily-plan .week-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:.83rem; }
+.daily-plan .week-item { background:#fff; border-radius:8px; padding:8px 12px; border:1px solid #fde68a; }
+.daily-plan .week-item strong { color:#b45309; }
+
+/* Timeline */
+.timeline-section { margin-top:50px; }
+.timeline { position:relative; padding-left:40px; }
+.timeline::before {
+    content:''; position:absolute; left:18px; top:0; bottom:0; width:2px;
+    background:linear-gradient(to bottom,var(--s1),var(--s2),var(--s3),var(--s4),var(--s5),var(--s6));
+    border-radius:1px;
+}
+.tl-item { position:relative; margin-bottom:28px; }
+.tl-dot {
+    position:absolute; left:-26px; top:4px;
+    width:14px; height:14px; border-radius:50%; background:#fff; border:3px solid var(--primary);
+}
+.tl-content h4 { font-weight:700; font-size:1rem; }
+.tl-content p { font-size:.88rem; color:var(--muted); margin-top:4px; }
+
+/* Tips */
+.tips-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+.tip-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:12px; padding:18px 20px; text-align:center;
+}
+.tip-card .tip-icon { font-size:2rem; margin-bottom:6px; display:block; }
+.tip-card h4 { font-size:.95rem; font-weight:700; margin-bottom:4px; }
+.tip-card p { font-size:.82rem; color:var(--muted); line-height:1.5; }
+
+/* Footer */
+.footer {
+    text-align:center; padding:32px 20px; color:var(--muted);
+    font-size:.85rem; border-top:1px solid var(--border); margin-top:40px;
+}
+
+/* Checklist */
+.checklist-section { margin-top:50px; }
+.checklist {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:10px;
+}
+.cl-item {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:10px; padding:12px 16px; font-size:.85rem;
+    display:flex; align-items:center; gap:8px;
+}
+.cl-box {
+    width:18px; height:18px; border:2px solid #cbd5e1; border-radius:4px;
+    flex-shrink:0; cursor:pointer;
+}
+.cl-box.checked { background:var(--s5); border-color:var(--s5); }
+.cl-box.checked::after { content:"✓"; color:#fff; font-size:12px; display:flex; justify-content:center; }
+
+@media(max-width:768px) {
+    .header h1 { font-size:1.6rem; }
+    .stats-bar { grid-template-columns:repeat(2,1fr); }
+    .detail-grid { grid-template-columns:1fr; }
+    .daily-plan .week-grid { grid-template-columns:1fr; }
+    .checklist { grid-template-columns:1fr; }
+    .stage-header { padding:16px 20px; }
+}
+
+/* TOC */
+.toc {
+    max-width:1000px; margin:30px auto 0; padding:0 20px;
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+}
+.toc a {
+    text-decoration:none; font-size:.82rem; padding:6px 14px;
+    border-radius:20px; font-weight:500; border:1px solid var(--border);
+    color:var(--muted); background:var(--card); transition:all .2s;
+}
+.toc a:hover { color:var(--primary); border-color:var(--primary); background:#eff6ff; }
+</style>
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header class="header">
+<div class="header-content">
+<span class="icon">⚡</span>
+<h1>LabVIEW 从入门到项目实战</h1>
+<p class="subtitle">完整学习路线 · 六大阶段系统进阶 · 零基础到独立开发</p>
+</div>
+</header>
+
+<!-- ==================== STATS ==================== -->
+<div class="stats-bar">
+<div class="stat-card"><div class="num">6</div><div class="label">学习阶段</div></div>
+<div class="stat-card"><div class="num">40+</div><div class="label">详细知识点</div></div>
+<div class="stat-card"><div class="num">16</div><div class="label">实战项目</div></div>
+<div class="stat-card"><div class="num">3~6月</div><div class="label">建议学习周期</div></div>
+</div>
+
+<!-- ==================== TOC ==================== -->
+<div class="toc">
+<a href="#s1">🔰 阶段一：新手入门</a>
+<a href="#s2">📊 阶段二：基础进阶</a>
+<a href="#s3">🧩 阶段三：核心编程</a>
+<a href="#s4">🔌 阶段四：硬件交互</a>
+<a href="#s5">🏗 阶段五：架构设计</a>
+<a href="#s6">🚀 阶段六：项目实战</a>
+<a href="#timeline">📅 时间线</a>
+<a href="#tips">💡 学习建议</a>
+<a href="#check">✅ 自检清单</a>
+</div>
+
+<!-- ==================== MAIN CONTENT ==================== -->
+<div class="container">
+
+<!-- ========== 阶段一 ========== -->
+<div class="stage open" id="s1">
+<div class="stage-header" onclick="this.parentElement.classList.toggle('open')">
+<div class="stage-num">1</div>
+<div class="stage-info">
+<h3>🔰 新手入门：认识 LabVIEW 与图形化编程</h3>
+<div class="stage-time">⏱ 第 1~2 周（约 20 小时）· 目标：能独立创建简单的 VI 程序</div>
+</div>
+<span class="stage-arrow">▼</span>
+</div>
+<div class="stage-body">
+
+<!-- 每日计划 -->
+<div class="daily-plan">
+<h4>📋 每日学习计划</h4>
+<div class="week-grid">
+<div class="week-item"><strong>第1天(2h)：</strong>了解什么是虚拟仪器，LabVIEW 的应用领域（测试测量、自动化控制、数据采集），安装 LabVIEW 软件</div>
+<div class="week-item"><strong>第2天(2h)：</strong>认识前面板与程序框图的关系，练习在控件选板和函数选板中查找控件/函数</div>
+<div class="week-item"><strong>第3天(2h)：</strong>创建第一个 VI：A+B=C 加法器，理解数据流编程思想，学习连线规则</div>
+<div class="week-item"><strong>第4天(2h)：</strong>学习常用控件：数值控件(Numeric)、布尔控件(Boolean)、字符串控件(String)</div>
+<div class="week-item"><strong>第5天(2h)：</strong>学习工具栏操作：运行、连续运行、中止、暂停、单步执行按钮的区别</div>
+<div class="week-item"><strong>第6天(2h)：</strong>学习控件的标签、标题、默认值设置，快捷键 Ctrl+E 切换前面板/框图</div>
+<div class="week-item"><strong>第7天(2h)：</strong>学习帮助系统：Context Help (Ctrl+H) 悬浮帮助窗口的使用方法</div>
+<div class="week-item"><strong>第8天(2h)：</strong>练习：制作简易计算器（加减乘除四则运算）</div>
+<div class="week-item"><strong>第9天(2h)：</strong>练习：摄氏温度转华氏温度（公式：°F = °C × 9/5 + 32）</div>
+<div class="week-item"><strong>第10天(2h)：</strong>练习：LED 虚拟指示灯开关控制，使用布尔开关控制指示灯颜色</div>
+</div>
+</div>
+
+<div class="detail-section">
+<h4><span class="dot" style="background:var(--s1)"></span>核心知识详解</h4>
+<div class="detail-grid">
+
+<div class="detail-block">
+<h5>📖 什么是虚拟仪器（VI）？</h5>
+<div class="desc">LabVIEW 中的 VI（Virtual Instrument）是程序的基本单元。每个 VI 由三个部分组成：</div>
+<ul>
+<li><b>前面板（Front Panel）</b>：用户界面，放置输入控件(Control)和输出显示(Indicator)。灰色背景</li>
+<li><b>程序框图（Block Diagram）</b>：源代码区域，使用图形化连线代替文本代码。白色背景</li>
+<li><b>图标/连接器（Icon/Connector）</b>：将 VI 封装成子程序（SubVI）时使用</li>
+</ul>
+<div class="tag-row">
+<span class="tag">Ctrl+E 切换面板/框图</span>
+<span class="tag">Ctrl+T 左右并列</span>
+</div>
+</div>
+
+<div class="detail-block">
+<h5>🎛 控件选板与函数选板</h5>
+<div class="desc">两个选板是 LabVIEW 编程的核心工具箱：</div>
+<ul>
+<li><b>控件选板（Controls Palette）</b>：在前面板右键打开，包含所有可放置的输入控件和显示控件</li>
+<li><b>函数选板（Functions Palette）</b>：在程序框图右键打开，包含所有可用的函数节点</li>
+<li>分类：Modern（现代风格）、Silver（银色风格）、System（系统风格）、Classic（经典风格）</li>
+<li>常用快捷搜索：选板顶部的搜索框可直接搜索控件/函数名</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>🔗 连线（Wiring）基础</h5>
+<div class="desc">连线是数据在程序框图中流动的路径，不同颜色和线型代表不同数据类型：</div>
+<ul>
+<li><b>橙色细线</b>：浮点数（单精度 DBL）</li>
+<li><b>蓝色细线</b>：整数（I32）</li>
+<li><b>绿色细线</b>：布尔值</li>
+<li><b>粉色细线</b>：字符串</li>
+<li><b>虚线</b>：数据类型不匹配（错误连线）</li>
+<li><b>断线处理</b>：Ctrl+B 删除所有断线，右键 → Remove Broken Wires</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>⚡ 数据流编程思想</h5>
+<div class="desc">LabVIEW 是数据流驱动语言——节点在所有输入端都有数据到达时才开始执行。这是与传统文本编程的最大区别：</div>
+<ul>
+<li>多个节点如果输入独立，会<b>自动并行执行</b>（不需要多线程代码）</li>
+<li>错误簇连线可强制数据依赖关系，控制执行顺序</li>
+<li>程序框图从左到右阅读，数据从左向右流动</li>
+<li>没有"main 函数"概念——所有可以独立运行的 VI 都是平等的</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+<div class="practice-block">
+<h4>🎯 阶段一练习项目</h4>
+<div class="projects">
+<span class="project-tag">▶ 简易四则计算器（+ − × ÷）</span>
+<span class="project-tag">▶ 摄氏 ↔ 华氏温度转换器</span>
+<span class="project-tag">▶ LED 虚拟指示灯开关控制</span>
+</div>
+</div>
+</div><!-- /stage-body -->
+</div><!-- /stage -->
+
+<!-- ========== 阶段二 ========== -->
+<div class="stage" id="s2">
+<div class="stage-header" onclick="this.parentElement.classList.toggle('open')">
+<div class="stage-num">2</div>
+<div class="stage-info">
+<h3>📊 基础进阶：数据类型与程序结构</h3>
+<div class="stage-time">⏱ 第 3~5 周（约 40 小时）· 目标：掌握数据类型和控制结构，能写出逻辑完整的程序</div>
+</div>
+<span class="stage-arrow">▼</span>
+</div>
+<div class="stage-body">
+
+<div class="daily-plan">
+<h4>📋 每日学习计划</h4>
+<div class="week-grid">
+<div class="week-item"><strong>第3周·Day1(2h)：</strong>数值型数据类型详解：I8/I16/I32/U8/U16/U32/SGL/DBL/EXT/复数，各类型的取值范围和内存占用</div>
+<div class="week-item"><strong>第3周·Day2(2h)：</strong>数值运算函数：加减乘除、平方根、绝对值、取整、随机数、数学/科学常量</div>
+<div class="week-item"><strong>第3周·Day3(2h)：</strong>布尔运算：与/或/非/异或，布尔转换，比较运算（大于/小于/等于/不等于/区间判断）</div>
+<div class="week-item"><strong>第3周·Day4(2h)：</strong>字符串操作：拼接、截取、查找替换、格式化字符串、字符串与数值互转</div>
+<div class="week-item"><strong>第3周·Day5(2h)：</strong>枚举类型(Enum)和路径(Path)控件；时间戳(Timestamp)的获取与格式化显示</div>
+<div class="week-item"><strong>第4周·Day1(2h)：</strong>For 循环：N 终端、循环计数器 i、移位寄存器(Shift Register)概念</div>
+<div class="week-item"><strong>第4周·Day2(2h)：</strong>While 循环：条件终端（Stop if True / Continue if True）、定时循环</div>
+<div class="week-item"><strong>第4周·Day3(2h)：</strong>条件结构（Case Structure）：选择器标签、默认分支、布尔/数值/字符串/枚举选择器</div>
+<div class="week-item"><strong>第4周·Day4(2h)：</strong>顺序结构（Flat Sequence / Stacked Sequence），公式节点（Formula Node）</div>
+<div class="week-item"><strong>第4周·Day5(2h)：</strong>事件结构（Event Structure）入门：处理用户界面事件（鼠标点击、值改变、按键）</div>
+<div class="week-item"><strong>第5周·Day1(2h)：</strong>数组创建：Build Array、Initialize Array、Array Constant、自动索引隧道</div>
+<div class="week-item"><strong>第5周·Day2(2h)：</strong>数组操作：Index Array、Replace Array Subset、Delete From Array、Array Size、Search 1D Array</div>
+<div class="week-item"><strong>第5周·Day3(2h)：</strong>簇(Cluster)：Bundle（打包）、Unbundle（解包）、Bundle By Name、Unbundle By Name</div>
+<div class="week-item"><strong>第5周·Day4(2h)：</strong>数组与簇互转：Array To Cluster、Cluster To Array、多列列表框与表格控件</div>
+<div class="week-item"><strong>第5周·Day5(2h)：</strong>波形图表：Waveform Chart（实时滚动）vs Waveform Graph（一次性绘制）、XY Graph、多曲线显示</div>
+</div>
+</div>
+
+<div class="detail-section">
+<h4><span class="dot" style="background:var(--s2)"></span>核心知识详解</h4>
+<div class="detail-grid">
+
+<div class="detail-block">
+<h5>📐 数据类型深层理解</h5>
+<div class="desc">LabVIEW 是强类型语言，每个端子都必须连接正确类型的数据：</div>
+<ul>
+<li><b>数值型</b>：整数(U8/U16/U32/I8/I16/I32)、浮点(SGL单精度/DBL双精度/EXT扩展精度)、复数(CXT/CDB/CGL)</li>
+<li><b>数值转换</b>：不同数值类型连接时自动强制转换（出现红色小三角Coercion Dot），可能损失精度</li>
+<li><b>布尔型</b>：只有 True/False 两种状态，前面板有开关、按钮、LED 灯等形态</li>
+<li><b>字符串</b>：支持正常显示、\ 代码显示、密码显示、十六进制显示四种模式</li>
+<li><b>路径型</b>：跨平台路径分隔符自动处理（Windows \  vs Linux/Mac /）</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>🔄 移位寄存器（Shift Register）</h5>
+<div class="desc">这是 LabVIEW 循环中最重要的概念之一，用于在循环迭代之间传递数据：</div>
+<ul>
+<li>在循环边框右键 → Add Shift Register 添加</li>
+<li>左侧端子 = 上一次迭代的输出值（第一次迭代为初始值）</li>
+<li>右侧端子 = 当前迭代的输入值（传递给下一次迭代）</li>
+<li>可拖动下边框扩展为多层级，同时保存前 N 次迭代的值</li>
+<li>典型应用：累加求和、求最大值/最小值、构建数组</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>🔁 循环的关键概念</h5>
+<div class="desc">For 循环 vs While 循环的选择原则：</div>
+<ul>
+<li><b>For 循环</b>：知道循环次数时使用（如遍历数组），自动索引(Auto-indexing)是默认开启的</li>
+<li><b>While 循环</b>：循环次数不确定，由条件判断决定何时停止（如等待用户点击停止按钮）</li>
+<li><b>隧道（Tunnel）</b>：数据进出循环的通道，右键可选择自动索引(带[]图标)、最后值(Last Value)、条件禁用等模式</li>
+<li><b>定时循环（Timed Loop）</b>：精确控制循环周期，适用于需要固定采样率的数据采集场景</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>📈 Chart 与 Graph 的关键区别</h5>
+<div class="desc">这是初学者最容易混淆的概念：</div>
+<ul>
+<li><b>Waveform Chart（波形图表）</b>：带内部缓冲区，每次写入一个数据点追加到历史数据后，适合实时滚动显示。默认保留 1024 个历史数据点</li>
+<li><b>Waveform Graph（波形图）</b>：一次性绘制整个数组，无缓冲区，适合显示已采集完整的数据集</li>
+<li><b>XY Graph</b>：绘制 Y 对 X 的关系，X 轴不是均匀间隔的（如李沙育图形、I-V 曲线）</li>
+<li><b>多曲线</b>：用 Build Array 合并多条数据线，或用 Bundle 打包 X/Y 数组对</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+<div class="practice-block">
+<h4>🎯 阶段二练习项目</h4>
+<div class="projects">
+<span class="project-tag">▶ 简易数据采集模拟器（随机数+Chart显示）</span>
+<span class="project-tag">▶ 实时波形显示器（多通道+颜色区分）</span>
+<span class="project-tag">▶ 学生成绩管理系统（数组+簇+文件存储）</span>
+<span class="project-tag">▶ 猜数字游戏（随机数+While循环+事件处理）</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ========== 阶段三 ========== -->
+<div class="stage" id="s3">
+<div class="stage-header" onclick="this.parentElement.classList.toggle('open')">
+<div class="stage-num">3</div>
+<div class="stage-info">
+<h3>🧩 核心编程：模块化与文件 IO</h3>
+<div class="stage-time">⏱ 第 6~8 周（约 40 小时）· 目标：能写出模块化、可复用的代码</div>
+</div>
+<span class="stage-arrow">▼</span>
+</div>
+<div class="stage-body">
+
+<div class="daily-plan">
+<h4>📋 每日学习计划</h4>
+<div class="week-grid">
+<div class="week-item"><strong>第6周·Day1(2h)：</strong>理解子 VI 概念：将常用功能封装为子 VI，类比文本编程的"函数"</div>
+<div class="week-item"><strong>第6周·Day2(2h)：</strong>连接器窗格(Connector Pane)设计：4-2-2-4 等标准模式，端子分配规范</div>
+<div class="week-item"><strong>第6周·Day3(2h)：</strong>图标编辑器(Icon Editor)：为子 VI 设计易识别的图标，4-6 字文字+简单图形</div>
+<div class="week-item"><strong>第6周·Day4(2h)：</strong>创建 VI 库：把常用功能（如数据转换、单位换算、文件路径生成）做成子 VI 集合</div>
+<div class="week-item"><strong>第6周·Day5(2h)：</strong>理解VI层次结构：主 VI → 功能子 VI → 工具子 VI 的调用层次</div>
+<div class="week-item"><strong>第7周·Day1(2h)：</strong>文本文件写入：Write Delimited Spreadsheet、Write To Text File，分隔符设置</div>
+<div class="week-item"><strong>第7周·Day2(2h)：</strong>文本文件读取：Read Delimited Spreadsheet、Read From Text File，数据解析</div>
+<div class="week-item"><strong>第7周·Day3(2h)：</strong>二进制文件：Write To Binary File / Read From Binary File，适合大量数据的快速读写</div>
+<div class="week-item"><strong>第7周·Day4(2h)：</strong>TDMS 文件格式：NI 专为测试测量设计的高效二进制格式，支持分组和属性描述</div>
+<div class="week-item"><strong>第7周·Day5(2h)：</strong>配置文件 INI 读写：Config File VIs，保存用户设置和系统参数</div>
+<div class="week-item"><strong>第8周·Day1(2h)：</strong>错误簇(Error Cluster)：Status/Code/Source 三个字段的含义和传递方式</div>
+<div class="week-item"><strong>第8周·Day2(2h)：</strong>调试工具实践：探针(Probe)、断点(Breakpoint)、高亮执行(Highlight Execution)、单步执行</div>
+<div class="week-item"><strong>第8周·Day3(2h)：</strong>错误处理最佳实践：所有子 VI 都要有 Error In/Out 端子，串联形成错误链</div>
+<div class="week-item"><strong>第8周·Day4(2h)：</strong>属性节点(Property Node)：动态修改控件属性（可见性、颜色、禁用、位置、大小）</div>
+<div class="week-item"><strong>第8周·Day5(2h)：</strong>调用节点(Invoke Node)：调用 VI 的方法（如 Export Image、Reinitialize、Run）</div>
+</div>
+</div>
+
+<div class="detail-section">
+<h4><span class="dot" style="background:var(--s3)"></span>核心知识详解</h4>
+<div class="detail-grid">
+
+<div class="detail-block">
+<h5>🧱 子 VI 设计规范</h5>
+<div class="desc">好的子 VI 是 LabVIEW 项目质量的基石。设计标准如下：</div>
+<ul>
+<li><b>单一职责</b>：一个子 VI 只做一件事（如"读取温度"而不是"读取温度并显示和存储"）</li>
+<li><b>标准接线端子</b>：左上角 = 输入，右上角 = 输出，左下角 = 错误入，右下角 = 错误出</li>
+<li><b>有意义的名字</b>：如"Convert_C_to_F.vi"而不是"SubVI_01.vi"</li>
+<li><b>端子要求</b>：必需端子（Required）、推荐端子（Recommended）、可选端子（Optional）</li>
+<li><b>图标规范</b>：4-6个字的缩写 + 简单色块图形，一目了然</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>📁 文件 I/O 全景</h5>
+<div class="desc">LabVIEW 提供丰富的文件操作函数，针对不同场景选择不同格式：</div>
+<ul>
+<li><b>TXT 文本文件</b>：人类可读、兼容性好，适合配置文件和小数据量（&lt;1万行）</li>
+<li><b>CSV / Spreadsheet 文件</b>：表格数据，可直接用 Excel 打开，分隔符可选 Tab/逗号/自定义</li>
+<li><b>二进制文件</b>：读写速度最快（比文本快10-100倍），适合高速采集数据存储</li>
+<li><b>TDMS 文件</b>：NI 推荐格式，速度快+结构清晰+可加属性描述，NI DIAdem/Max 可直接读取</li>
+<li><b>INI 文件</b>：键值对配置，"Section→Key→Value"三层结构，方便保存软件设置</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>⚠ 错误处理黄金法则</h5>
+<div class="desc">在 LabVIEW 中，错误处理是通过"错误簇"在节点之间串联传递实现的：</div>
+<ul>
+<li>每个子 VI<b>必须</b>有 Error In 和 Error Out 端子（使用 4-2-2-4 连接器模式）</li>
+<li>节点在有错误输入时<b>自动跳过</b>执行（不浪费时间），将错误原封不动传出</li>
+<li>用 Simple Error Handler 或 General Error Handler 在顶层显示错误弹窗</li>
+<li>用 Merge Errors 合并多个并行分支的错误（如多个采集通道）</li>
+<li>自定义错误码：使用 Error Cluster From Error Code.vi 定义自己项目的错误码（5000+范围）</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>🔍 调试三件套</h5>
+<div class="desc">LabVIEW 的可视化调试工具比文本语言的 printf 强大得多：</div>
+<ul>
+<li><b>探针（Probe）</b>：在连线上放置探针窗口，实时观察该连线的数据值，无需修改代码</li>
+<li><b>高亮执行（灯泡按钮）</b>：数据流以动画气泡方式慢速流动，直观展示执行顺序和数据传递</li>
+<li><b>断点（Breakpoint）</b>：在节点或连线上设置，程序暂停后可检查所有变量和堆栈</li>
+<li><b>单步执行</b>：Step Into（进入子VI）/ Step Over（跳过子VI）/ Step Out（跳出子VI）</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+<div class="practice-block">
+<h4>🎯 阶段三练习项目</h4>
+<div class="projects">
+<span class="project-tag">▶ 带登录界面的数据记录系统</span>
+<span class="project-tag">▶ CSV 数据批量导入/导出并绘制图表</span>
+<span class="project-tag">▶ 多页面选项卡程序（Tab Control + 子VI模块化）</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ========== 阶段四 ========== -->
+<div class="stage" id="s4">
+<div class="stage-header" onclick="this.parentElement.classList.toggle('open')">
+<div class="stage-num">4</div>
+<div class="stage-info">
+<h3>🔌 硬件交互：数据采集与仪器控制</h3>
+<div class="stage-time">⏱ 第 9~12 周（约 60 小时）⚡ 核心阶段 · 目标：能通过 LabVIEW 控制硬件设备</div>
+</div>
+<span class="stage-arrow">▼</span>
+</div>
+<div class="stage-body">
+
+<div class="daily-plan">
+<h4>📋 每日学习计划</h4>
+<div class="week-grid">
+<div class="week-item"><strong>第9周·Day1(2h)：</strong>了解 DAQ 硬件：NI 采集卡系列（USB-6000系列等），模拟/数字/计数器通道概念</div>
+<div class="week-item"><strong>第9周·Day2(2h)：</strong>安装 NI-DAQmx 驱动，在 NI MAX 中识别和自检硬件设备，了解设备名称 Dev1</div>
+<div class="week-item"><strong>第9周·Day3(2h)：</strong>DAQ Assistant (DAQ助手)：快速配置采集任务（无代码），然后生成 LabVIEW 代码</div>
+<div class="week-item"><strong>第9周·Day4(2h)：</strong>模拟输入 AI：DAQmx Create Channel → Timing → Start → Read → Stop → Clear 标准流程</div>
+<div class="week-item"><strong>第9周·Day5(2h)：</strong>模拟输出 AO：输出电压/电流信号，控制可编程电源或执行器</div>
+<div class="week-item"><strong>第10周·Day1(2h)：</strong>数字 I/O（DIO）：Digital Input/Output 控制继电器、读取开关状态</div>
+<div class="week-item"><strong>第10周·Day2(2h)：</strong>计数器（Counter）：脉冲计数、频率测量、PWM 生成</div>
+<div class="week-item"><strong>第10周·Day3(2h)：</strong>多种触发模式：软件触发、硬件模拟触发、数字触发、预触发采集</div>
+<div class="week-item"><strong>第10周·Day4(2h)：</strong>理解采样率（Sample Rate）和采样数（Number of Samples）的设置原则</div>
+<div class="week-item"><strong>第10周·Day5(2h)：</strong>连续采集模式(Continuous) vs 有限采集模式(Finite)的区别和应用场景</div>
+<div class="week-item"><strong>第11周·Day1(2h)：</strong>VISA 驱动安装与 NI MAX 中识别串口（COM1、COM3等）</div>
+<div class="week-item"><strong>第11周·Day2(2h)：</strong>VISA 标准流程：Open → Configure → Write → Read → Close</div>
+<div class="week-item"><strong>第11周·Day3(2h)：</strong>串口参数配置：Baud Rate(波特率)、Data Bits、Stop Bits、Parity、Flow Control</div>
+<div class="week-item"><strong>第11周·Day4(2h)：</strong>串口数据解析：固定长度 vs 终止符(\r\n) vs 帧头帧尾协议解析</div>
+<div class="week-item"><strong>第11周·Day5(2h)：</strong>RS-485 多设备通信：地址轮询（Polling）方式、Modbus RTU 协议入门</div>
+<div class="week-item"><strong>第12周·Day1(2h)：</strong>GPIB 通信基础：仪器地址设置、SCPI 命令格式（如 *IDN? 查询仪器身份）</div>
+<div class="week-item"><strong>第12周·Day2(2h)：</strong>以太网/LAN 仪器控制：VISA TCP/IP 连接、Socket 通信</div>
+<div class="week-item"><strong>第12周·Day3(2h)：</strong>信号处理：滤波器设计（Butterworth、Chebyshev 低通/高通/带通/带阻）</div>
+<div class="week-item"><strong>第12周·Day4(2h)：</strong>FFT 频谱分析：时域→频域转换，幅值谱、功率谱、相位谱的含义</div>
+<div class="week-item"><strong>第12周·Day5(2h)：</strong>综合实践：搭建数据采集→实时显示→滤波处理→数据存储的完整流水线</div>
+</div>
+</div>
+
+<div class="detail-section">
+<h4><span class="dot" style="background:var(--s4)"></span>核心知识详解</h4>
+<div class="detail-grid">
+
+<div class="detail-block">
+<h5>🔬 DAQmx 标准编程流程</h5>
+<div class="desc">这是所有 NI 数据采集程序的黄金模板，6 个步骤缺一不可：</div>
+<ul>
+<li>① <b>Create Virtual Channel</b>：创建虚拟通道（指定物理通道 Dev1/ai0，测量类型 电压/温度/应变等）</li>
+<li>② <b>Timing</b>：配置采样时钟（采样率、采样模式 Continuous/Finite、采样数）</li>
+<li>③ <b>Start Task</b>：启动采集任务（开始硬件采集）</li>
+<li>④ <b>Read</b>：读取数据（Analog 1D Wfm NChan NSamp / Analog 2D DBL NChan NSamp 等）</li>
+<li>⑤ <b>Stop Task</b>：停止采集</li>
+<li>⑥ <b>Clear Task</b>：清除任务释放硬件资源</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>🔌 VISA 串口通信完全指南</h5>
+<div class="desc">VISA (Virtual Instrument Software Architecture) 是 NI 的统一 I/O 接口，屏蔽底层硬件差异：</div>
+<ul>
+<li><b>VISA 资源名称</b>：COM1、ASRL1::INSTR（串口） / GPIB0::12::INSTR（GPIB） / TCPIP0::192.168.1.100::5025::SOCKET</li>
+<li><b>必配参数</b>：波特率(9600/19200/38400/115200)、数据位(8)、停止位(1)、校验(None)、流控(None)</li>
+<li><b>读写技巧</b>：VISA Read 前用 Bytes at Serial Port 检查缓存字节数，避免阻塞超时</li>
+<li><b>终止符</b>：默认换行符 \n(LF)，可设为 \r(CR) 或自定义，写入时启用 Send End</li>
+<li><b>数据解析套路</b>：收到字符串 → 搜索帧头(如"$")→ 提取数据段 → 字符串转数值 → 校验</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>📡 SCPI 仪器控制命令</h5>
+<div class="desc">SCPI (Standard Commands for Programmable Instruments) 是程控仪器的标准语言：</div>
+<ul>
+<li><b>*IDN?</b> — 查询仪器身份（制造商、型号、序列号、固件版本），每个仪器都支持</li>
+<li><b>*RST</b> — 仪器复位为默认状态</li>
+<li><b>测量类命令</b>：MEASure:VOLTage:DC? — 测量直流电压 / MEASure:CURRent:AC? — 交流电流</li>
+<li><b>设置类命令</b>：SOURce:VOLTage 5.0 — 输出电压5V / SENSe:RESistance:RANGe 1000 — 量程1kΩ</li>
+<li><b>查询类命令</b>：命令后加 ?（如 OUTPut?），仪器返回当前状态值</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>🎛 信号处理实战</h5>
+<div class="desc">信号处理是测试测量程序的核心能力：</div>
+<ul>
+<li><b>滤波器类型选择</b>：
+  <br>• 低通(Lowpass)：保留低频去除高频噪声（温度信号常见）
+  <br>• 高通(Highpass)：保留高频去除直流漂移（振动信号）
+  <br>• 带通(Bandpass)：只保留特定频段（如提取50Hz工频分量）
+  <br>• 带阻(Bandstop)：滤除特定频段（如滤除50Hz工频干扰）</li>
+<li><b>FFT 关键参数</b>：采样率 Fs 决定可分析的最高频率（Fs/2, 奈奎斯特定理），采样点数 N 决定频率分辨率（Fs/N）</li>
+<li><b>窗函数</b>：Hanning窗（通用）、Hamming窗、Blackman窗，减少频谱泄漏</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+<div class="practice-block">
+<h4>🎯 阶段四练习项目</h4>
+<div class="projects">
+<span class="project-tag">▶ 基于 DAQ 的多通道温度采集+曲线显示</span>
+<span class="project-tag">▶ 自研串口调试助手（类似 SSCOM）</span>
+<span class="project-tag">▶ 程控电源 SCPI 控制程序</span>
+<span class="project-tag">▶ 实时信号采集+FFT频谱分析仪</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ========== 阶段五 ========== -->
+<div class="stage" id="s5">
+<div class="stage-header" onclick="this.parentElement.classList.toggle('open')">
+<div class="stage-num">5</div>
+<div class="stage-info">
+<h3>🏗 架构设计：设计模式与大型项目管理</h3>
+<div class="stage-time">⏱ 第 13~16 周（约 60 小时）· 目标：能设计可维护、可扩展的软件架构</div>
+</div>
+<span class="stage-arrow">▼</span>
+</div>
+<div class="stage-body">
+
+<div class="daily-plan">
+<h4>📋 每日学习计划</h4>
+<div class="week-grid">
+<div class="week-item"><strong>第13周·Day1(2h)：</strong>理解为什么需要设计模式——避免"意大利面条式代码"，提升可读性和可维护性</div>
+<div class="week-item"><strong>第13周·Day2(2h)：</strong>状态机（State Machine）：While + Case + 移位寄存器(State)，实现状态转移</div>
+<div class="week-item"><strong>第13周·Day3(2h)：</strong>状态机进阶：枚举定义所有状态、状态转移图设计、添加错误处理状态</div>
+<div class="week-item"><strong>第13周·Day4(2h)：</strong>事件结构深入：处理超时(Timeout)、值改变(Value Change)、鼠标按下、键盘按下等事件</div>
+<div class="week-item"><strong>第13周·Day5(2h)：</strong>事件结构+状态机结合：用户事件驱动状态转换（按钮按下→切换状态→执行动作）</div>
+<div class="week-item"><strong>第14周·Day1(2h)：</strong>队列(Queue)操作：Obtain Queue → Enqueue → Dequeue → Release Queue</div>
+<div class="week-item"><strong>第14周·Day2(2h)：</strong>生产者-消费者模式(Producer-Consumer)：两个并行循环通过队列通信</div>
+<div class="week-item"><strong>第14周·Day3(2h)：</strong>生产者-消费者进阶：生产者=UI事件循环(采集用户操作)，消费者=数据处理循环(执行耗时任务)</div>
+<div class="week-item"><strong>第14周·Day4(2h)：</strong>通知器(Notifier)：一对多广播（暂停/停止所有循环）；集合点(Rendezvous)：同步多个循环</div>
+<div class="week-item"><strong>第14周·Day5(2h)：</strong>主从模式(Master-Slave)：主循环协调多个从循环（多通道独立采集和显示）</div>
+<div class="week-item"><strong>第15周·Day1(2h)：</strong>LabVIEW 项目管理：.lvproj 项目文件的创建和管理，添加 VI、文件夹、库</div>
+<div class="week-item"><strong>第15周·Day2(2h)：</strong>虚拟文件夹(Auto-populating Folder)：自动包含文件夹内所有 VI，适合构建工具库</div>
+<div class="week-item"><strong>第15周·Day3(2h)：</strong>库(.lvlib)：将相关 VI 打包为库，提供命名空间，解决 VI 名称冲突</div>
+<div class="week-item"><strong>第15周·Day4(2h)：</strong>类(.lvclass) 与面向对象编程 LVOOP：封装、继承、动态派发(Dynamic Dispatch)</div>
+<div class="week-item"><strong>第15周·Day5(2h)：</strong>源代码发布规范(Source Distribution)：打包项目源码供团队使用</div>
+<div class="week-item"><strong>第16周·Day1(2h)：</strong>动态调用(VI Server Call By Reference)：运行时通过路径字符串动态加载和运行 VI</div>
+<div class="week-item"><strong>第16周·Day2(2h)：</strong>插件架构设计：主程序定义接口，各功能模块作为独立 VI 插件动态加载</div>
+<div class="week-item"><strong>第16周·Day3(2h)：</strong>功能全局变量(Functional Global Variable / Action Engine)：用未初始化的移位寄存器保存全局状态</div>
+<div class="week-item"><strong>第16周·Day4(2h)：</strong>Channel Wire（通道线）：LabVIEW 2016+ 新增的简化版生产者-消费者实现方式</div>
+<div class="week-item"><strong>第16周·Day5(2h)：</strong>综合架构设计：QMH（Queued Message Handler）= 队列+状态机，工业界最常用架构</div>
+</div>
+</div>
+
+<div class="detail-section">
+<h4><span class="dot" style="background:var(--s5)"></span>核心知识详解</h4>
+<div class="detail-grid">
+
+<div class="detail-block">
+<h5>🏛 状态机（State Machine）</h5>
+<div class="desc">LabVIEW 中最基础、最常用的设计模式：</div>
+<ul>
+<li><b>结构</b>：一个 While 循环 + 一个 Case 结构 + 移位寄存器（当前状态）</li>
+<li><b>状态类型</b>：Initialize（初始化）→ Idle（等待）→ Run（运行）→ Stop（停止）→ Error（错误处理）</li>
+<li><b>状态转移</b>：每个 Case 分支执行完后，将"下一个状态"的枚举值写入移位寄存器</li>
+<li><b>适用场景</b>：流程明确的测试序列（如：初始化仪器→设置参数→开始测量→读取数据→判断→停止）</li>
+<li><b>优势</b>：每步逻辑独立在一个 Case 分支中，修改某一步不影响其他步骤</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>📬 生产者-消费者模式</h5>
+<div class="desc">这是 LabVIEW 中解决"界面卡死"问题的王牌模式：</div>
+<ul>
+<li><b>生产者循环</b>：处理 UI 事件（用户点击按钮、修改参数），将"消息/命令"通过队列发送给消费者，响应快速</li>
+<li><b>消费者循环</b>：从队列中取出消息，执行耗时的任务（数据采集、文件写入、仪器通信）</li>
+<li><b>队列的作用</b>：缓冲区——生产者发送 100 个消息，消费者一个个处理，不丢失、不阻塞</li>
+<li><b>关键函数</b>：Enqueue Element（发送消息）、Dequeue Element（接收消息，可设超时）、Get Queue Status（查看队列深度）</li>
+<li><b>停止技巧</b>：发送"Exit"消息到队列，消费者收到后退出循环并释放队列</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>🧵 QMH（Queued Message Handler）架构</h5>
+<div class="desc">QMH 是工业界 LabVIEW 项目的事实标准架构，结合了队列和状态机：</div>
+<ul>
+<li><b>消息 = 字符串</b>：每个消息是一个命名的命令字符串（如"Do Acquire"、"Save Data"、"Exit"）</li>
+<li><b>消息+数据</b>：用 Variant 或簇打包消息和数据一起入队列（如 "Set Voltage" + 5.0）</li>
+<li><b>消息处理器</b>：消费者循环中的 Case 结构，每个消息对应一个分支</li>
+<li><b>多消费者</b>：可创建多个消费者循环，一个负责采集、一个负责显示、一个负责存储</li>
+<li><b>DQM(Desktop QMH)</b>：对 QMH 的改进版，每个消息响应后返回 Done 通知</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>🧬 LVOOP 面向对象编程入门</h5>
+<div class="desc">LabVIEW 从 8.2 版本开始支持面向对象编程：</div>
+<ul>
+<li><b>类(.lvclass)</b>：封装数据（私有数据）和方法（VI），数据不被外部直接访问</li>
+<li><b>继承</b>：子类继承父类的数据和 Method VI，可以 Override 父类的方法</li>
+<li><b>动态派发(Dynamic Dispatch)</b>：运行时根据实际对象类型调用对应子类的重写方法（多态）</li>
+<li><b>适用场景</b>：硬件抽象层（同一套接口驱动不同型号的万用表/电源/电子负载）、测试步骤统一管理</li>
+<li><b>注意</b>：LVOOP 适合中大型项目，小型项目不必强行使用，增加复杂度</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+<div class="practice-block">
+<h4>🎯 阶段五练习项目</h4>
+<div class="projects">
+<span class="project-tag">▶ 电池充放电自动测试系统（QMH架构）</span>
+<span class="project-tag">▶ 多通道数据采集与存储平台（生产者-消费者）</span>
+<span class="project-tag">▶ 仪器自动化测试序列编辑器（动态调用+插件）</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ========== 阶段六 ========== -->
+<div class="stage" id="s6">
+<div class="stage-header" onclick="this.parentElement.classList.toggle('open')">
+<div class="stage-num">6</div>
+<div class="stage-info">
+<h3>🚀 项目实战：独立完成完整项目</h3>
+<div class="stage-time">⏱ 第 17~24 周（约 80 小时）· 目标：从零独立交付完整的测试测量项目</div>
+</div>
+<span class="stage-arrow">▼</span>
+</div>
+<div class="stage-body">
+
+<div class="daily-plan">
+<h4>📋 项目实战流程（以电池测试系统为例）</h4>
+<div class="week-grid">
+<div class="week-item"><strong>第17周：需求分析</strong><br>编写需求文档：测试什么参数（电压/电流/容量/内阻）、测试流程（CC充电→CV充电→静置→CC放电→循环）、精度要求、报告格式</div>
+<div class="week-item"><strong>第18周：方案设计</strong><br>硬件选型（电子负载型号、电源型号、DAQ卡型号）、软件架构设计（选QMH架构）、通信协议确认（RS-232/VISA/Modbus）</div>
+<div class="week-item"><strong>第19周：UI 设计</strong><br>前面板设计：参数设置区、实时数据显示区（Chart+数值）、状态指示区、控制按钮区（启动/暂停/急停/退出）</div>
+<div class="week-item"><strong>第20周：底层驱动开发</strong><br>编写仪器驱动子VI：电源控制（设置电压/电流/输出开关/读取回读值）、电子负载控制（CC/CV/CR/CP模式）</div>
+<div class="week-item"><strong>第21周：核心逻辑开发</strong><br>实现测试序列：用状态机管理测试步骤（Idle→CC_Charge→CV_Charge→Rest→CC_Discharge→Loop_Check→Stop）</div>
+<div class="week-item"><strong>第22周：数据处理</strong><br>实时计算容量(Ah)、能量(Wh)、效率；数据存储为TDMS格式；异常检测（过压/过流/过温保护）</div>
+<div class="week-item"><strong>第23周：测试验证</strong><br>单元测试每个子VI，集成测试完整流程，用模拟数据跑通全流程，异常情况测试（通信断开、超限保护）</div>
+<div class="week-item"><strong>第24周：发布部署</strong><br>生成 EXE 可执行文件、制作安装包（含 Runtime Engine）、编写用户操作手册、交付培训</div>
+</div>
+</div>
+
+<div class="detail-section">
+<h4><span class="dot" style="background:var(--s6)"></span>核心知识详解</h4>
+<div class="detail-grid">
+
+<div class="detail-block">
+<h5>📝 需求分析与方案设计</h5>
+<div class="desc">项目成败的 50% 取决于这个阶段：</div>
+<ul>
+<li><b>需求文档要素</b>：功能需求(做什么)、性能指标(做到什么程度/精度/速度)、接口需求(和什么设备通信)、用户需求(谁用/怎么用)</li>
+<li><b>硬件选型 Checklist</b>：通道数、精度/分辨率、采样率、通信接口、预算、货期</li>
+<li><b>软件架构决策树</b>：
+  <br>• 简单固定流程 → 状态机
+  <br>• 界面+后台任务 → 生产者-消费者
+  <br>• 多模块灵活扩展 → QMH
+  <br>• 硬件可互换 → LVOOP + 硬件抽象层</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>🖼 专业 UI 设计规范</h5>
+<div class="desc">好的前面板界面让用户觉得"专业"和"好用"：</div>
+<ul>
+<li><b>布局原则</b>：参数设置放左边/上边，数据显示放中间，控制按钮放底部，状态栏放最底部</li>
+<li><b>配色原则</b>：浅灰背景(不是纯白)，深色文字，运行状态绿色、停止红色、警告黄色</li>
+<li><b>控件对齐</b>：工具栏 Alignment 工具统一对齐、等间距分布，不要"散放"</li>
+<li><b>选项卡(Tab Control)</b>：功能分类到不同标签页（设置/监控/数据/帮助），避免一个界面放太多控件</li>
+<li><b>自定义控件</b>：可以用图片替换按钮外观，制作类似真实仪器的旋钮/表头（图片下拉列表/自定义布尔）</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>🧪 测试方法</h5>
+<div class="desc">保证程序可靠性的关键步骤：</div>
+<ul>
+<li><b>单元测试</b>：每个子 VI 单独测试——给定已知输入，验证输出是否符合预期</li>
+<li><b>模拟模式</b>：硬件驱动子 VI 提供"Simulation Mode"，无硬件时返回仿真数据，方便开发调试</li>
+<li><b>集成测试</b>：连接真实硬件后，从简单流程开始逐步验证（先测通信→再测单步→最后跑全流程）</li>
+<li><b>边界测试</b>：测试极限值（最大电压、最小电流）、异常输入（负数、NaN、Inf、空数组）</li>
+<li><b>长时间运行测试</b>：让程序持续运行 24 小时，检查内存泄漏（任务管理器中内存是否持续增长）</li>
+</ul>
+</div>
+
+<div class="detail-block">
+<h5>📦 发布部署流程</h5>
+<div class="desc">将 LabVIEW 程序交付给用户的完整步骤：</div>
+<ul>
+<li><b>生成 EXE</b>：Project → Build Specifications → New → Application(EXE)，配置启动 VI、图标、版本号</li>
+<li><b>制作安装包</b>：New → Installer，自动包含 LabVIEW Run-Time Engine、DAQmx 驱动、VISA 驱动等</li>
+<li><b>路径处理</b>：使用相对路径（Application Directory 函数），不要硬编码绝对路径</li>
+<li><b>配置文件外置</b>：将通信参数、校准系数等放在外部 INI 文件中，方便现场修改</li>
+<li><b>用户手册</b>：含安装步骤、硬件连接图、软件操作说明、常见故障排除</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+<div class="practice-block">
+<h4>🎯 阶段六综合项目（选 1~2 个完整实现）</h4>
+<div class="projects">
+<span class="project-tag">▶ 电池充放电自动化测试平台（含报表生成）</span>
+<span class="project-tag">▶ 多通道温湿度环境监测与报警系统</span>
+<span class="project-tag">▶ 电机驱动控制+数据采集分析平台</span>
+<span class="project-tag">▶ 产线自动化测试站（ATE）</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ==================== TIMELINE ==================== -->
+<div class="timeline-section" id="timeline">
+<div class="section-title">
+<h2>📅 学习时间线总览</h2>
+<p>按周规划，循序渐进，每日2小时，6个月从入门到独立开发</p>
+</div>
+<div class="timeline">
+<div class="tl-item"><div class="tl-dot" style="border-color:var(--s1)"></div>
+<div class="tl-content"><h4>第 1~2 周 · 新手入门</h4><p>环境搭建、前面板/框图认识、第一个VI、基本控件、数据流思想、简易计算器/温度转换</p></div></div>
+<div class="tl-item"><div class="tl-dot" style="border-color:var(--s2)"></div>
+<div class="tl-content"><h4>第 3~5 周 · 基础进阶</h4><p>数据类型全集、For/While/条件/顺序/事件结构、数组与簇操作、Chart vs Graph、波形显示</p></div></div>
+<div class="tl-item"><div class="tl-dot" style="border-color:var(--s3)"></div>
+<div class="tl-content"><h4>第 6~8 周 · 核心编程</h4><p>子VI设计规范、TXT/CSV/二进制/TDMS文件IO、错误簇处理链、调试工具、属性/调用节点</p></div></div>
+<div class="tl-item"><div class="tl-dot" style="border-color:var(--s4)"></div>
+<div class="tl-content"><h4>第 9~12 周 · 硬件交互 ⚡</h4><p>DAQmx采集全流程、VISA串口通信、GPIB/USB/LAN仪器控制、SCPI命令、滤波器/FFT信号处理</p></div></div>
+<div class="tl-item"><div class="tl-dot" style="border-color:var(--s5)"></div>
+<div class="tl-content"><h4>第 13~16 周 · 架构设计</h4><p>状态机→生产者消费者→QMH→动态调用→插件架构→LVOOP入门→项目组织与代码管理</p></div></div>
+<div class="tl-item"><div class="tl-dot" style="border-color:var(--s6)"></div>
+<div class="tl-content"><h4>第 17~24 周 · 项目实战 🚀</h4><p>需求分析→方案设计→UI开发→底层驱动→核心逻辑→测试验证→发布部署→交付文档</p></div></div>
+</div>
+</div>
+
+<!-- ==================== LEARNING TIPS ==================== -->
+<div class="section-title" style="margin-top:50px;" id="tips">
+<h2>💡 学习建议与资源推荐</h2>
+<p>提升效率，少走弯路</p>
+</div>
+<div class="tips-grid">
+<div class="tip-card">
+<span class="tip-icon">📚</span>
+<h4>推荐书籍</h4>
+<p>《LabVIEW宝典》陈树学著（中文圣经级）<br>《LabVIEW入门与实战开发100例》<br>《LabVIEW高级编程技术》</p>
+</div>
+<div class="tip-card">
+<span class="tip-icon">🎥</span>
+<h4>在线资源</h4>
+<p>NI 官网 training.ni.com<br>B站/YouTube 搜索 LabVIEW<br>NI 论坛 forums.ni.com<br>VIPM 工具包管理器</p>
+</div>
+<div class="tip-card">
+<span class="tip-icon">🔧</span>
+<h4>必备软件</h4>
+<p>LabVIEW 2020 或更新版本<br>NI-DAQmx 驱动<br>NI-VISA 驱动<br>NI MAX（设备管理器）</p>
+</div>
+<div class="tip-card">
+<span class="tip-icon">📌</span>
+<h4>核心方法论</h4>
+<p>① 每个知识点立即上手<br>② 先调通再优化<br>③ 善用 Example Finder<br>④ Ctrl+H 随时查帮助</p>
+</div>
+</div>
+
+<!-- ==================== CHECKLIST ==================== -->
+<div class="checklist-section" id="check">
+<div class="section-title" style="margin-top:50px;">
+<h2>✅ 知识自检清单</h2>
+<p>学完每个阶段后，勾选已掌握的知识点（点击复选框标记完成）</p>
+</div>
+<div class="checklist">
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能独立创建VI，理解前面板与框图的关系</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能识别不同数据类型连线的颜色</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>熟练使用 For/While/Case/Event/Sequence 结构</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>理解移位寄存器原理并正确使用</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能创建和操作数组(1D/2D)、簇</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能区分 Chart 和 Graph 并正确选用</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能设计和调用子 VI（含连接器+图标）</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能读写 TXT/CSV/二进制/TDMS 文件</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>所有子 VI 都有 Error In/Out 端子</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能用探针/断点/高亮执行调试程序</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能使用属性节点动态控制界面</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>掌握 DAQmx 标准6步采集流程</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能用 VISA 进行串口/GPIB/LAN 通信</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>会写 SCPI 命令控制仪器</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能用滤波器+FFT 处理信号</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能搭建状态机架构的完整程序</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能搭建生产者-消费者架构</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能使用队列/通知器进行循环间通信</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能使用 .lvproj 项目文件管理代码</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>理解 QMH 架构并能应用到项目</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能生成 EXE 和安装包</div>
+<div class="cl-item"><div class="cl-box" onclick="this.classList.toggle('checked')"></div>能独立完成完整的测试测量项目</div>
+</div>
+</div>
+
+</div><!-- /container -->
+
+<footer class="footer">
+LabVIEW 从入门到项目实战 · 完整学习路线 · 每天2小时，6个月从零基础到独立开发 🚀
+</footer>
+
+<script>
+document.querySelectorAll('.stage-header').forEach(h=>{
+    h.addEventListener('click',function(){
+        this.parentElement.classList.toggle('open');
+    });
+});
+</script>
+</body>
+</html>
