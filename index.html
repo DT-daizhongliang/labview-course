@@ -39,6 +39,22 @@ body {
 .header .subtitle { font-size:1.1rem; color:#94a3b8; }
 
 /* Stats */
+/* Top Nav */
+.top-nav {
+    max-width:1000px; margin:16px auto 0; padding:0 20px;
+    display:flex; gap:0; justify-content:center; position:relative; z-index:2;
+}
+.top-nav a {
+    text-decoration:none; font-size:.9rem; font-weight:600;
+    padding:10px 28px; border:1px solid var(--border);
+    background:var(--card); color:var(--muted);
+    transition:all .2s;
+}
+.top-nav a:first-child { border-radius:8px 0 0 8px; }
+.top-nav a:last-child { border-radius:0 8px 8px 0; }
+.top-nav a.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+.top-nav a:hover:not(.active) { color:var(--primary); background:#eff6ff; }
+
 .stats-bar {
     max-width:1000px; margin:-28px auto 0; display:grid;
     grid-template-columns:repeat(4,1fr); gap:16px; padding:0 20px;
@@ -235,6 +251,12 @@ body {
 <p class="subtitle">完整学习路线 · 六大阶段系统进阶 · 零基础到独立开发</p>
 </div>
 </header>
+
+<!-- ==================== TOP NAV ==================== -->
+<nav class="top-nav">
+<a href="./" class="active">📋 学习计划</a>
+<a href="guide.html">📘 深度学习教程</a>
+</nav>
 
 <!-- ==================== STATS ==================== -->
 <div class="stats-bar">
