@@ -1092,9 +1092,90 @@ LabVIEW 完整教材 · 从零基础到独立编程 · 内含全套学习资料 
 </footer>
 
 <script>
-document.querySelectorAll('.ch-head').forEach(function(h){
-h.addEventListener('click',function(){this.parentElement.classList.toggle('open')})
-});
+// === Sidebar navigation: click → jump + expand ===
+(function(){
+    var sidebarLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+    var chapters = document.querySelectorAll('.chapter');
+
+    // Find chapter by ID
+    function findChapter(id) {
+        for (var i = 0; i < chapters.length; i++) {
+            if (chapters[i].id === id) return chapters[i];
+        }
+        return null;
+    }
+
+    // Handle sidebar link click
+    sidebarLinks.forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            var targetId = this.getAttribute('href').replace('#', '');
+            var chapter = findChapter(targetId);
+            if (!chapter) return;
+
+            // Expand the target chapter
+            chapter.classList.add('open');
+
+            // Update sidebar active state
+            sidebarLinks.forEach(function(l) { l.classList.remove('active'); });
+            this.classList.add('active');
+
+            // Scroll to the chapter
+            setTimeout(function() {
+                chapter.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 50);
+        });
+    });
+
+    // Chapter header toggle
+    chapters.forEach(function(ch) {
+        var head = ch.querySelector('.ch-head');
+        if (head) {
+            head.addEventListener('click', function() {
+                ch.classList.toggle('open');
+            });
+        }
+    });
+
+    // On page load: open chapter if URL hash matches
+    var hash = window.location.hash.replace('#', '');
+    if (hash) {
+        var target = findChapter(hash);
+        if (target) {
+            target.classList.add('open');
+            setTimeout(function() {
+                target.scrollIntoView({ block: 'start' });
+            }, 100);
+            // Highlight sidebar
+            sidebarLinks.forEach(function(l) {
+                if (l.getAttribute('href') === '#' + hash) l.classList.add('active');
+            });
+        }
+    }
+
+    // Highlight sidebar link on scroll
+    var ticking = false;
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            requestAnimationFrame(function() {
+                var scrollPos = window.scrollY + 100;
+                chapters.forEach(function(ch) {
+                    var id = ch.id;
+                    var top = ch.offsetTop;
+                    var bottom = top + ch.offsetHeight;
+                    if (scrollPos >= top && scrollPos < bottom) {
+                        sidebarLinks.forEach(function(l) {
+                            l.classList.remove('active');
+                            if (l.getAttribute('href') === '#' + id) l.classList.add('active');
+                        });
+                    }
+                });
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+})();
 </script>
 </body>
 </html>
