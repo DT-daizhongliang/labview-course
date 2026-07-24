@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LabVIEW 深度学习教程 - 从零到独立编程</title>
+<style>
+:root {
+    --primary: #1a73e8; --bg: #f8fafc; --card: #ffffff; --text: #1e293b;
+    --muted: #64748b; --border: #e2e8f0; --code-bg: #1e293b; --accent: #f59e0b;
+    --s1:#3b82f6; --s2:#06b6d4; --s3:#8b5cf6; --s4:#f59e0b; --s5:#10b981; --s6:#ef4444;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","微软雅黑",sans-serif;background:var(--bg);color:var(--text);line-height:1.8}
+
+/* Header */
+.header{background:linear-gradient(135deg,#0c1929 0%,#132742 40%,#1a3a5c 100%);color:#fff;padding:50px 20px 40px;text-align:center}
+.header h1{font-size:2.2rem;font-weight:700;margin-bottom:6px}
+.header .sub{color:#94a3b8;font-size:1.05rem}
+.header .badge{display:inline-block;margin-top:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:6px 18px;font-size:.85rem}
+
+/* Nav */
+.nav{max-width:1100px;margin:20px auto 0;padding:0 20px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.nav a{text-decoration:none;font-size:.82rem;padding:6px 14px;border-radius:20px;border:1px solid var(--border);color:var(--muted);background:var(--card);transition:all .2s}
+.nav a:hover{color:var(--primary);border-color:var(--primary);background:#eff6ff}
+
+/* Container */
+.container{max-width:900px;margin:0 auto;padding:30px 20px 60px}
+
+/* Section */
+.sec{margin-bottom:40px;background:var(--card);border-radius:16px;border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.03)}
+.sec-head{padding:18px 24px;cursor:pointer;display:flex;align-items:center;gap:12px;user-select:none;transition:background .2s}
+.sec-head:hover{background:#fafafa}
+.sec-num{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1.1rem;flex-shrink:0}
+.sec:nth-of-type(1) .sec-num{background:var(--s1)}
+.sec:nth-of-type(2) .sec-num{background:var(--s2)}
+.sec:nth-of-type(3) .sec-num{background:var(--s3)}
+.sec:nth-of-type(4) .sec-num{background:var(--s4)}
+.sec:nth-of-type(5) .sec-num{background:var(--s5)}
+.sec:nth-of-type(6) .sec-num{background:var(--s6)}
+.sec:nth-of-type(7) .sec-num{background:var(--s1)}
+.sec:nth-of-type(8) .sec-num{background:var(--s2)}
+.sec:nth-of-type(9) .sec-num{background:var(--s3)}
+.sec:nth-of-type(10) .sec-num{background:var(--s4)}
+.sec:nth-of-type(11) .sec-num{background:var(--s5)}
+.sec-head h2{font-size:1.1rem;flex:1}
+.sec-arrow{color:#94a3b8;transition:transform .3s}
+.sec.open .sec-arrow{transform:rotate(180deg)}
+.sec-body{display:none;padding:0 24px 20px;border-top:1px solid var(--border)}
+.sec.open .sec-body{display:block}
+
+/* Content */
+.sec-body h3{font-size:1rem;font-weight:700;margin:20px 0 8px;color:#1e40af}
+.sec-body h3:first-child{margin-top:14px}
+.sec-body p{margin-bottom:10px;font-size:.9rem;color:var(--text)}
+.sec-body ul,.sec-body ol{margin:8px 0 14px 20px;font-size:.9rem}
+.sec-body li{margin-bottom:5px}
+
+/* Code block */
+.code-block{background:var(--code-bg);color:#e2e8f0;border-radius:10px;padding:16px 20px;margin:12px 0;font-family:"Cascadia Code","Fira Code","Consolas",monospace;font-size:.82rem;overflow-x:auto;line-height:1.6}
+.code-block .kw{color:#93c5fd}
+.code-block .fn{color:#f9a8d4}
+.code-block .cm{color:#6b7280;font-style:italic}
+.code-block .str{color:#86efac}
+.code-block .num{color:#fdba74}
+
+/* Tip box */
+.tip{background:#eff6ff;border-left:4px solid #3b82f6;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:.88rem}
+.tip strong{color:#1e40af}
+.warn{background:#fffbeb;border-left:4px solid #f59e0b;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:.88rem}
+.warn strong{color:#b45309}
+.success{background:#f0fdf4;border-left:4px solid #10b981;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:.88rem}
+.success strong{color:#047857}
+
+/* Table */
+.tb{width:100%;border-collapse:collapse;margin:12px 0;font-size:.85rem}
+.tb th{background:#f1f5f9;padding:10px 14px;text-align:left;font-weight:600;border:1px solid var(--border)}
+.tb td{padding:8px 14px;border:1px solid var(--border)}
+.tb tr:nth-child(even){background:#fafafa}
+
+/* Step */
+.step{margin:16px 0;padding:16px 20px;background:#f8fafc;border:1px solid var(--border);border-radius:12px}
+.step .step-num{display:inline-block;background:var(--primary);color:#fff;width:26px;height:26px;border-radius:50%;text-align:center;line-height:26px;font-size:.8rem;font-weight:700;margin-right:8px}
+.step h4{display:inline;font-size:.93rem}
+.step p{margin-top:6px;font-size:.85rem;color:var(--muted)}
+
+/* Img placeholder */
+.img-block{background:#f1f5f9;border:2px dashed #cbd5e1;border-radius:12px;padding:30px;text-align:center;margin:14px 0;color:var(--muted);font-size:.85rem}
+
+/* Pattern card */
+.pattern-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin:14px 0}
+.pattern-card{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px}
+.pattern-card h4{font-size:.93rem;font-weight:700;margin-bottom:6px}
+.pattern-card p{font-size:.83rem;color:var(--muted)}
+
+/* Tabs */
+.tabs{display:flex;gap:0;margin:14px 0;border-bottom:2px solid var(--border)}
+.tab-btn{padding:8px 16px;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--muted);border:none;background:none;transition:all .2s}
+.tab-btn.active{color:var(--primary);border-bottom:2px solid var(--primary);margin-bottom:-2px}
+.tab-panel{display:none;padding:4px 0}
+.tab-panel.active{display:block}
+
+/* Top Nav */
+.top-nav{
+    max-width:900px; margin:16px auto 0; padding:0 20px;
+    display:flex; gap:0; justify-content:center; position:relative; z-index:2;
+}
+.top-nav a{
+    text-decoration:none; font-size:.9rem; font-weight:600;
+    padding:10px 28px; border:1px solid var(--border);
+    background:var(--card); color:var(--muted);
+    transition:all .2s;
+}
+.top-nav a:first-child{border-radius:8px 0 0 8px}
+.top-nav a:last-child{border-radius:0 8px 8px 0}
+.top-nav a.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.top-nav a:hover:not(.active){color:var(--primary);background:#eff6ff}
+
+.footer{text-align:center;padding:24px 20px;color:var(--muted);font-size:.82rem;border-top:1px solid var(--border);margin-top:30px}
+
+@media(max-width:768px){
+    .header h1{font-size:1.5rem}
+    .pattern-grid{grid-template-columns:1fr}
+    .nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+<h1>📘 LabVIEW 深度学习教程</h1>
+<p class="sub">从零基础到独立编程 · 一体化学习与运用指南</p>
+<div class="badge">🕐 建议配合「学习计划」一起使用</div>
+</header>
+
+<nav class="nav">
+<a href="#s1">认识LabVIEW</a><a href="#s2">环境与界面</a><a href="#s3">数据流编程</a>
+<a href="#s4">数据类型</a><a href="#s5">程序结构</a><a href="#s6">数组与簇</a>
+<a href="#s7">子VI模块化</a><a href="#s8">文件IO</a><a href="#s9">调试技巧</a>
+<a href="#s10">设计模式</a><a href="#s11">项目实战</a>
+</nav>
+
+<nav class="top-nav">
+<a href="./">📋 学习计划</a>
+<a href="guide.html" class="active">📘 深度学习教程</a>
+</nav>
+
+<div class="container">
+
+<!-- ===== 1 ===== -->
+<div class="sec open" id="s1">
+<div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+<div class="sec-num">1</div><h2>🔰 认识 LabVIEW：它是什么，为什么用它</h2><span class="sec-arrow">▼</span>
+</div>
+<div class="sec-body">
+
+<h3>1.1 LabVIEW 是什么？</h3>
+<p>LabVIEW（Laboratory Virtual Instrument Engineering Workbench）是由美国国家仪器公司（NI）开发的<b>图形化编程平台</b>。与传统的文本编程语言（如 C、Python）不同，LabVIEW 用<b>图形、连线和图标</b>代替文字代码来编写程序。</p>
+
+<div class="tip"><strong>💡 类比理解：</strong>如果把 C 语言比作「写作文」（用文字表达逻辑），那 LabVIEW 就是「画流程图」（用图形表达逻辑）。你不需要记忆语法规则，只需要把功能方块用线连起来即可。</div>
+
+<h3>1.2 LabVIEW 用在什么地方？</h3>
+<table class="tb">
+<tr><th>领域</th><th>具体应用</th><th>为什么用 LabVIEW</th></tr>
+<tr><td>🔋 电池测试</td><td>充放电循环测试、容量标定、内阻测量</td><td>天生适合与仪器通信，自带数据采集和图表显示</td></tr>
+<tr><td>🏭 产线自动化</td><td>ATE 自动化测试站、质量检测</td><td>快速开发，硬件驱动丰富</td></tr>
+<tr><td>🔬 实验室测量</td><td>温度/压力/振动/电压采集与分析</td><td>直接读取传感器数据，实时波形显示</td></tr>
+<tr><td>🤖 运动控制</td><td>电机控制、机械臂、伺服系统</td><td>NI 运动控制卡配合使用</td></tr>
+<tr><td>📡 仪器程控</td><td>程控电源、万用表、示波器、电子负载</td><td>VISA 统一接口，SCPI 命令编程</td></tr>
+</table>
+
+<h3>1.3 LabVIEW 的三大核心思想</h3>
+<div class="pattern-grid">
+<div class="pattern-card"><h4>🎨 图形化编程</h4><p>用「前面板」做界面 +「程序框图」写逻辑。没有一行文字代码，全是看得见的线和图标。</p></div>
+<div class="pattern-card"><h4>⚡ 数据流驱动</h4><p>节点在所有输入数据到齐后才执行。多个独立节点<b>自动并行运行</b>，无需手动写多线程代码。</p></div>
+<div class="pattern-card"><h4>🧱 模块化思维</h4><p>任何 VI 都可以变成「子 VI」，像搭积木一样组合。一个复杂项目 = 几十个简单子 VI 的组合。</p></div>
+</div>
+
+</div></div>
+
+<!-- ===== 2 ===== -->
+<div class="sec" id="s2">
+<div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+<div class="sec-num">2</div><h2>🖥 环境搭建与界面详解</h2><span class="sec-arrow">▼</span>
+</div>
+<div class="sec-body">
+
+<h3>2.1 你需要安装什么</h3>
+<table class="tb">
+<tr><th>软件</th><th>用途</th><th>安装顺序</th></tr>
+<tr><td><b>LabVIEW 开发环境</b></td><td>核心编程工具，建议 2020 或更新版本</td><td>① 最先安装</td></tr>
+<tr><td><b>NI-DAQmx 驱动</b></td><td>数据采集卡驱动，没硬件也装上（方便学习）</td><td>② 装完 LabVIEW 后装</td></tr>
+<tr><td><b>NI-VISA 驱动</b></td><td>串口/GPIB/USB/网口通信驱动</td><td>③ 最后安装</td></tr>
+<tr><td><b>NI MAX</b></td><td>设备管理器，随 DAQmx 自动安装</td><td>自动附带</td></tr>
+</table>
+
+<h3>2.2 启动 LabVIEW 后你看到的</h3>
+<p>打开 LabVIEW 后首先出现的是 <b>Getting Started 窗口</b>，这里你可以：</p>
+<ul>
+<li><b>New VI</b> — 创建一个新的空白 VI（最常用）</li>
+<li><b>Open Existing</b> — 打开已有的 VI 文件</li>
+<li><b>New Project</b> — 创建项目（做大型项目时用）</li>
+<li><b>Example Finder</b> — 浏览官方范例（<b>强烈推荐！</b>学习资源宝库）</li>
+</ul>
+
+<div class="tip"><strong>💡 学习技巧：</strong>打开 LabVIEW 后第一件事 —— 点击 <b>Help → Find Examples</b>，浏览 NI 官方提供的几百个现成范例。这是最好的免费学习资料。</div>
+
+<h3>2.3 前面板 vs 程序框图 —— 两个窗口的分工</h3>
+<p>每个 VI 都由两个窗口组成，按 <b>Ctrl+E</b> 可以来回切换：</p>
+
+<table class="tb">
+<tr><th></th><th>前面板 Front Panel</th><th>程序框图 Block Diagram</th></tr>
+<tr><td>背景颜色</td><td>🟫 灰色</td><td>⬜ 白色</td></tr>
+<tr><td>作用</td><td><b>用户界面</b>：放按钮、输入框、图表、指示灯</td><td><b>程序逻辑</b>：放函数、连线、结构</td></tr>
+<tr><td>右键打开</td><td>控件选板（Controls Palette）</td><td>函数选板（Functions Palette）</td></tr>
+<tr><td>谁看</td><td>用户 / 操作员</td><td>开发者 / 你自己</td></tr>
+</table>
+
+<div class="warn"><strong>⚠ 初学者最容易犯的错：</strong>在前面板上放了一堆控件，在程序框图里不知道怎么连。记住：<b>前面板只放「给人看的」东西，程序框图才是「写逻辑」的地方。</b></div>
+
+<h3>2.4 必须记住的快捷键</h3>
+<table class="tb">
+<tr><th>快捷键</th><th>功能</th><th>使用频率</th></tr>
+<tr><td><b>Ctrl+E</b></td><td>切换前面板 ↔ 程序框图</td><td>⭐⭐⭐⭐⭐ 最常用</td></tr>
+<tr><td><b>Ctrl+H</b></td><td>打开/关闭即时帮助窗口（悬浮显示函数说明）</td><td>⭐⭐⭐⭐⭐ 最常用</td></tr>
+<tr><td><b>Ctrl+B</b></td><td>删除所有断线（清理乱七八糟的线）</td><td>⭐⭐⭐⭐</td></tr>
+<tr><td><b>Ctrl+T</b></td><td>左右并列显示前面板和框图</td><td>⭐⭐⭐</td></tr>
+<tr><td><b>Ctrl+R</b></td><td>运行 VI</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td><b>Ctrl+.</b></td><td>中止运行</td><td>⭐⭐⭐</td></tr>
+<tr><td><b>Ctrl+Z / Ctrl+Y</b></td><td>撤销 / 重做</td><td>⭐⭐⭐⭐</td></tr>
+</table>
+
+</div></div>
+
+<!-- ===== 3 ===== -->
+<div class="sec" id="s3">
+<div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+<div class="sec-num">3</div><h2>⚡ 数据流编程：LabVIEW 最核心的概念</h2><span class="sec-arrow">▼</span>
+</div>
+<div class="sec-body">
+
+<h3>3.1 什么是数据流？</h3>
+<p>在文本编程语言中，代码从上到下一行一行执行。在 LabVIEW 中，<b>一个节点在其所有输入端都收到数据时才执行</b>。这是理解 LabVIEW 最最关键的一点。</p>
+
+<div class="tip"><strong>💡 通俗理解：</strong>把每个函数想象成一个工人。工人只有在「所有原材料都到齐」后才开始干活。多个工人如果原材料互不依赖，就<b>同时干活</b>（自动并行）。</div>
+
+<h3>3.2 连线：数据的「公路」</h3>
+<p>连线是数据在程序框图中流动的路径。不同颜色和粗细代表不同的数据类型：</p>
+
+<table class="tb">
+<tr><th>颜色</th><th>线型</th><th>数据类型</th><th>说明</th></tr>
+<tr><td style="color:#f97316;font-weight:700">🟠 橙色</td><td>细线</td><td>浮点数 DBL</td><td>小数，最常用（如 3.14、-27.5）</td></tr>
+<tr><td style="color:#3b82f6;font-weight:700">🔵 蓝色</td><td>细线</td><td>整数 I32</td><td>整数（如 0、100、-5）</td></tr>
+<tr><td style="color:#22c55e;font-weight:700">🟢 绿色</td><td>细线</td><td>布尔值</td><td>只有 True 或 False</td></tr>
+<tr><td style="color:#ec4899;font-weight:700">🩷 粉色</td><td>细线</td><td>字符串</td><td>文本数据</td></tr>
+<tr><td>⚫ 黑色虚线</td><td>虚线</td><td>❌ 断线</td><td>数据类型不匹配，连接错误</td></tr>
+</table>
+
+<div class="warn"><strong>⚠ 看到虚线怎么办？</strong>说明你连错了——两个端子的数据类型不匹配。按 <b>Ctrl+B</b> 一键删除虚线，然后检查两端的类型是否一致。</div>
+
+<h3>3.3 创建你的第一个 VI：A + B = C</h3>
+<div class="step"><span class="step-num">1</span><h4>新建 VI</h4><p>在 Getting Started 窗口点击 <b>New VI</b>，或按 <b>Ctrl+N</b>。</p></div>
+<div class="step"><span class="step-num">2</span><h4>在前面板放控件</h4><p>灰色窗口右键 → <b>Numeric → Numeric Control</b>（输入框，放两个）→ <b>Numeric → Numeric Indicator</b>（显示框，放一个）。</p></div>
+<div class="step"><span class="step-num">3</span><h4>切换到程序框图</h4><p>按 <b>Ctrl+E</b> 切到白色窗口，你会看到三个图标对应刚才放的控件。</p></div>
+<div class="step"><span class="step-num">4</span><h4>添加加法函数</h4><p>白色窗口右键 → <b>Numeric → Add</b>，鼠标变成小手，点一下放置。</p></div>
+<div class="step"><span class="step-num">5</span><h4>连线</h4><p>鼠标移到图标的小端子上（会变成线轴图标），按住拖到另一个端子，完成连线。把两个输入连到 Add 的 x 和 y，Add 的输出连到显示框。</p></div>
+<div class="step"><span class="step-num">6</span><h4>运行</h4><p>按 <b>Ctrl+R</b> 或点击工具栏的 ▶ 白色箭头。在前面板的输入框里输入数字，结果自动计算。</p></div>
+
+<div class="success"><strong>🎉 恭喜！</strong>你已经写完了你的第一个 LabVIEW 程序。这个 VI 做的事 = 两个输入相加，显示结果。虽然简单，但包含了创建控件 → 添加函数 → 连线 → 运行的完整流程。</div>
+
+<h3>3.4 数据流的执行顺序规则</h3>
+<ol>
+<li><b>有依赖就按依赖走</b>：如果 A 的输出连到 B 的输入，A 一定先于 B 执行</li>
+<li><b>无依赖就并行跑</b>：两个节点之间没有连线关系，就同时执行（多核 CPU 自动利用）</li>
+<li><b>用错误簇控制顺序</b>：想让不相关的节点按顺序执行？把 Error Out → Error In 串起来</li>
+<li><b>顺序结构慎用</b>：Flat Sequence 强制顺序，但破坏了并行性，能不用就不用</li>
+</ol>
+
+<div class="tip"><strong>💡 经验之谈：</strong>初学者容易过度使用顺序结构。正确做法是：让数据依赖自然决定执行顺序，Error 簇辅助控制。只有真正需要「先做 A 再做 B」且两者没有数据依赖时才用顺序结构。</div>
+
+</div></div>
+
+<!-- ===== 4 ===== -->
+<div class="sec" id="s4">
+<div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+<div class="sec-num">4</div><h2>📐 数据类型完全手册</h2><span class="sec-arrow">▼</span>
+</div>
+<div class="sec-body">
+
+<h3>4.1 数值型（Numeric）—— 最常用的数据类型</h3>
+<table class="tb">
+<tr><th>类型名</th><th>缩写</th><th>取值范围</th><th>内存</th><th>何时使用</th></tr>
+<tr><td>双精度浮点</td><td>DBL</td><td>±1.7×10³⁰⁸</td><td>8字节</td><td><b>默认选择</b>，99%的数值运算用这个</td></tr>
+<tr><td>单精度浮点</td><td>SGL</td><td>±3.4×10³⁸</td><td>4字节</td><td>大量数据需要省内存时</td></tr>
+<tr><td>32位有符号整数</td><td>I32</td><td>-2¹⁰⁹ ~ 2¹⁰-1</td><td>4字节</td><td>计数、索引、循环次数</td></tr>
+<tr><td>32位无符号整数</td><td>U32</td><td>0 ~ 2³²-1</td><td>4字节</td><td>非负计数（如数组大小）</td></tr>
+<tr><td>8位无符号整数</td><td>U8</td><td>0 ~ 255</td><td>1字节</td><td>RGB颜色值、字节处理</td></tr>
+<tr><td>布尔型</td><td>TF</td><td>True / False</td><td>1字节</td><td>开关、条件判断、状态指示</td></tr>
+</table>
+
+<div class="warn"><strong>⚠ 红色小三角（Coercion Dot）：</strong>当你在数值端子间连不同类型的数据时（如 I32 → DBL），会出现红色小三角。LabVIEW 会自动转换类型，但可能有精度损失。尽量让两端类型一致。</div>
+
+<h3>4.2 字符串（String）—— 文本数据的处理</h3>
+<p>字符串在 LabVIEW 中有四种显示模式（右键控件切换）：</p>
+<ul>
+<li><b>Normal Display</b>（正常显示）：普通文本，如 "Hello World"</li>
+<li><b>\ Codes Display</b>（代码显示）：显示转义字符，如换行 \n、制表 \t</li>
+<li><b>Password Display</b>（密码显示）：显示为 ******</li>
+<li><b>Hex Display</b>（十六进制显示）：显示为字节的十六进制值</li>
+</ul>
+
+<p><b>常用字符串函数</b>（在程序框图右键 → String 子选板）：</p>
+<table class="tb">
+<tr><th>函数</th><th>功能</th><th>示例</th></tr>
+<tr><td>Concatenate Strings</td><td>拼接多个字符串</td><td>"Hello " + "World" → "Hello World"</td></tr>
+<tr><td>String Subset</td><td>截取子串</td><td>"ABCDEF", offset=2, length=3 → "CDE"</td></tr>
+<tr><td>Search and Replace</td><td>查找替换</td><td>把 "A" 全部替换为 "X"</td></tr>
+<tr><td>Format Into String</td><td>格式化数值到字符串</td><td>把 3.14159 格式化为 "3.14"</td></tr>
+<tr><td>String to Number</td><td>字符串转数值</td><td>"123.45" → 123.45</td></tr>
+<tr><td>Match Pattern</td><td>正则匹配</td><td>提取 "电压=5.0V" 中的 "5.0"</td></tr>
+</table>
+
+<h3>4.3 枚举（Enum）—— 限定选项的利器</h3>
+<p>枚举是有限个选项的列表。比如用枚举定义测试状态：</p>
+<ol>
+<li>在前面板上放置 Enum 控件（右键 → List & Table → Enum）</li>
+<li>右键 → Edit Items，添加选项：<b>空闲、充电中、放电中、暂停、完成、故障</b></li>
+<li>在程序框图中，用 Case 结构根据枚举值执行不同逻辑</li>
+</ol>
+<div class="tip"><strong>💡 为什么用枚举而不用整数：</strong>用 0/1/2 表示状态，别人看不懂你的代码。用枚举，每个状态都有名字，可读性极高。修改枚举时会自动更新所有使用处。</div>
+
+</div></div>
+
+<!-- ===== 5 ===== -->
+<div class="sec" id="s5">
+<div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+<div class="sec-num">5</div><h2>🔁 程序结构：让你的代码「聪明」起来</h2><span class="sec-arrow">▼</span>
+</div>
+<div class="sec-body">
+
+<h3>5.1 For 循环 —— 做 N 次重复的事</h3>
+<p>For 循环有 <b>N 端子</b>（循环总次数）和 <b>i 端子</b>（当前是第几次，从0开始）。</p>
+<div class="code-block"><span class="cm">📌 典型用法 1：执行 10 次</span>
+N 端子接常量 <span class="num">10</span> → 循环体执行 <span class="num">10</span> 次
+
+<span class="cm">📌 典型用法 2：遍历数组（自动索引）</span>
+数组从外面接入 For 循环 → 自动每次取出一个元素 → 处理完自动组装成数组输出
+
+<span class="cm">📌 典型用法 3：移位寄存器累加</span>
+循环边框右键 → Add Shift Register → 左侧端子初始值 <span class="num">0</span> → 右侧接 i → 最终左侧输出 = <span class="num">0+1+2+...+9 = 45</span></div>
+
+<div class="tip"><strong>💡 自动索引（Auto-indexing）：</strong>For 循环的隧道默认开启自动索引。输入数组会被「拆开」逐元素进入，输出隧道自动「组装」成数组。右键隧道可以切换模式。</div>
+
+<h3>5.2 While 循环 —— 直到条件满足才停</h3>
+<p>While 循环和 For 循环的区别只有一个：For 循环<b>知道要循环多少次</b>，While 循环<b>不知道，靠条件判断</b>。</p>
+<table class="tb">
+<tr><th></th><th>For 循环</th><th>While 循环</th></tr>
+<tr><td>停止条件</td><td>达到 N 次</td><td>条件端子为 True（或 False，可设置）</td></tr>
+<tr><td>最少执行次数</td><td>0 次（N=0）</td><td><b>至少 1 次</b>（先执行再判断）</td></tr>
+<tr><td>典型场景</td><td>遍历数组、重复 N 次</td><td>等待用户点击停止、持续采集</td></tr>
+</table>
+
+<div class="warn"><strong>⚠ While 循环陷阱：</strong>While 循环至少执行一次！如果你设置「Stop if True」但忘记给停止按钮初始值，可能导致无限循环。养成在停止条件前加超时保护的习惯。</div>
+
+<h3>5.3 Case 结构（条件结构） —— 根据条件走不同分支</h3>
+<p>Case 结构相当于文本编程中的 if-else 或 switch-case。顶部的 <b>? 选择器端子</b>决定走哪个分支。</p>
+<ul>
+<li>选择器接<b>布尔值</b> → 两个分支：True / False</li>
+<li>选择器接<b>整数</b> → 多个分支：0, 1, 2, 3...</li>
+<li>选择器接<b>字符串</b> → 多个分支："充电", "放电", "空闲"...</li>
+<li>选择器接<b>枚举</b> → 每个枚举值一个分支（<b>最推荐！</b>）</li>
+</ul>
+
+<div class="tip"><strong>💡 最佳实践：</strong>始终让 Case 结构有一个 <b>Default 分支</b>（右键分支标签 → Make This Case Default）。这样即使出现意外的选择器值也不会出错。</div>
+
+<h3>5.4 Event 结构（事件结构） —— 响应用户操作</h3>
+<p>Event 结构是 LabVIEW UI 编程的核心。它「等待」用户操作（点击按钮、修改数值、按键等），然后执行对应的处理代码。</p>
+
+<div class="code-block"><span class="cm">📌 Event 结构的标准使用模式：</span>
+While 循环内放 Event 结构
+   ├── <span class="str">"开始测试": Value Change</span> → 启动测试序列
+   ├── <span class="str">"停止": Value Change</span> → 停止并保存数据
+   ├── <span class="str">"超时": Timeout</span> → 更新实时数据显示（每100ms刷新）
+   └── <span class="str">"前面板关闭": Panel Close?</span> → 清理资源并退出</div>
+
+<div class="warn"><strong>⚠ 黄金规则：Event 结构必须放在 While 循环内部！</strong>单独一个 Event 结构只会执行一次（处理一个事件后就结束了）。放在 While 循环里才能持续监听事件。</div>
+
+<h3>5.5 移位寄存器（Shift Register） —— 循环间的「记忆」</h3>
+<p>移位寄存器是 LabVIEW 中最精妙的设计之一。它让循环可以「记住」上一次迭代的数据。</p>
+<ul>
+<li>在循环边框 <b>右键 → Add Shift Register</b></li>
+<li>左侧 ↓ 箭头 = 上一次迭代的输出（第一次迭代用初始值）</li>
+<li>右侧 ↑ 箭头 = 本次迭代要传给下一次的值</li>
+<li>拖动下边框可以创建<b>多层移位寄存器</b>，同时记住前 N 次的值</li>
+</ul>
+<div class="tip"><strong>💡 经典应用：</strong>移位寄存器实现累加器、滑动平均、状态机（存储当前状态枚举）、数据缓冲队列。几乎所有高级设计模式都依赖移位寄存器。</div>
+
+</div></div>
+
+<!-- ===== 6 ===== -->
+<div class="sec" id="s6">
+<div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+<div class="sec-num">6</div><h2>📦 数组与簇：批量处理数据的利器</h2><span class="sec-arrow">▼</span>
+</div>
+<div class="sec-body">
+
+<h3>6.1 数组（Array） —— 同类数据的集合</h3>
+<p>数组是一组<b>相同类型</b>数据的集合。LabVIEW 中数组用粗边框表示，支持 1D（一维）、2D（二维）和多维。</p>
+
+<table class="tb">
+<tr><th>操作</th><th>函数</th><th>说明</th></tr>
+<tr><td>创建数组</td><td>Build Array</td><td>把多个元素或子数组合并。Concatenate Inputs 选项控制是「合并为元素」还是「拼接为长数组」</td></tr>
+<tr><td>获取元素</td><td>Index Array</td><td>按索引取出元素。不接索引 = 取第 0 个。拖拽下边框可取多个元素</td></tr>
+<tr><td>替换元素</td><td>Replace Array Subset</td><td>替换指定位置的元素，不改原数组（数据流原则）</td></tr>
+<tr><td>删除元素</td><td>Delete From Array</td><td>删除指定位置元素，返回缩短的数组</td></tr>
+<tr><td>数组大小</td><td>Array Size</td><td>返回数组长度。1D → 一个数，2D → 两个数（行数、列数）</td></tr>
+<tr><td>搜索</td><td>Search 1D Array</td><td>搜索元素所在索引。找不到返回 -1</td></tr>
+<tr><td>排序</td><td>Sort 1D Array</td><td>升序排列</td></tr>
+<tr><td>初始化</td><td>Initialize Array</td><td>创建指定大小的数组，所有元素为同一个值</td></tr>
+</table>
+
+<h3>6.2 簇（Cluster） —— 不同类型数据的打包</h3>
+<p>簇是把<b>不同类型</b>的数据打包在一起。类似 C 语言的 struct 或 Python 的 tuple。</p>
+
+<div class="code-block"><span class="cm">📌 簇的典型例子 —— 测试结果包：</span>
+┌─────────────────────────┐
+│ Cluster（测试结果）        │
+│  ├── 电压 (DBL)：3.85 V  │
+│  ├── 电流 (DBL)：1.25 A  │
+│  ├── 温度 (DBL)：28.5 ℃  │
+│  ├── 时间 (Timestamp)    │
+│  └── 状态 (Enum)：充电中  │
+└─────────────────────────┘</div>
+
+<p><b>关键函数：</b></p>
+<ul>
+<li><b>Bundle（打包）</b>：把独立数据打包成簇。端子顺序和簇定义顺序要一致</li>
+<li><b>Unbundle（解包）</b>：从簇中提取所有元素</li>
+<li><b>Bundle By Name</b>：按名称打包，不必按顺序 —— <b>推荐使用！</b>代码更清晰</li>
+<li><b>Unbundle By Name</b>：按名称提取单个元素 —— 最常用</li>
+</ul>
+
+<div class="tip"><strong>💡 最佳实践：</strong>定义簇时给每个元素起好名字（前面板编辑时输入标签）。这样在程序框图中就能用 Bundle By Name / Unbundle By Name，代码可读性大幅提升。</div>
+
+<h3>6.3 数组和簇的配合使用</h3>
+<p>实际项目中经常数组 + 簇混用：</p>
+<ul>
+<li><b>簇数组</b>：每个元素是一个簇，如「多组测试数据」→ 每行是一个簇（电压+电流+温度）</li>
+<li><b>簇含数组</b>：簇的某个字段是数组，如「测试配置」簇中包含「测试步骤列表」数组</li>
+<li><b>和表格控件配合</b>：簇数组直接显示在多列列表框中</li>
+</ul>
+
+</div></div>
+
+<!-- ===== 7 ===== -->
+<div class="sec" id="s7">
+<div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+<div class="sec-num">7</div><h2>🧱 子 VI：模块化编程的核心技能</h2><span class="sec-arrow">▼</span>
+</div>
+<div class="sec-body">
+
+<h3>7.1 什么是子 VI？为什么要用？</h3>
+<p>子 VI 就是 LabVIEW 的「函数」。把常用功能封装成子 VI，需要时直接调用，不用重复写代码。</p>
+
+<div class="tip"><strong>💡 类比：</strong>如果你做了一个「摄氏转华氏」的功能，可能会在 20 个地方用到。不封装的话就要复制 20 次代码。封装成子 VI 后，20 个地方都调用同一个 VI，修改时只改一处。</div>
+
+<h3>7.2 创建子 VI 的标准步骤</h3>
+<div class="step"><span class="step-num">1</span><h4>写好功能</h4><p>先在一个普通 VI 中把功能调通（如「温度转换.vi」）。</p></div>
+<div class="step"><span class="step-num">2</span><h4>设计连接器窗格</h4><p>右上角小图标右键 → Show Connector。选择一个模式（如 4-2-2-4）。<b>标准规则：左上=输入，右上=输出，左下=Error In，右下=Error Out。</b></p></div>
+<div class="step"><span class="step-num">3</span><h4>分配端子</h4><p>用连线工具（线轴图标）点击连接器窗格的格子，再点击对应的控件/显示件，格子会变成输入或输出的颜色。</p></div>
+<div class="step"><span class="step-num">4</span><h4>编辑图标</h4><p>右键右上角图标 → Edit Icon。用 4-6 个字概括功能（如「C→F 转换」），配简单色块图形。</p></div>
+<div class="step"><span class="step-num">5</span><h4>保存并调用</h4><p>保存 VI。在其他 VI 的程序框图中，直接把 .vi 文件拖进去即可调用。</p></div>
+
+<h3>7.3 子 VI 设计规范（黄金法则）</h3>
+<ol>
+<li><b>必须有 Error In / Error Out</b>：无一例外。这是 LabVIEW 世界的通行证</li>
+<li><b>单一职责</b>：一个子 VI 只做一件事。如果名字里出现了「和」字，就该拆成两个</li>
+<li><b>有意义的文件名</b>：Convert_C_to_F.vi，而不是 SubVI_01.vi</li>
+<li><b>输入端加默认值</b>：让子 VI 在没有输入数据时也能正常运行</li>
+<li><b>加上 VI Description</b>：File → VI Properties → Documentation，写清楚这个 VI 做什么</li>
+</ol>
+
+<div class="success"><strong>✅ 好的子 VI 示例：</strong>Read_Temperature.vi、Set_Power_Supply_Voltage.vi、Save_Data_To_TDMS.vi、Calculate_Battery_Capacity.vi —— 一看名字就知道做什么。</div>
+
+</div></div>
+
+<!-- ===== 8 ===== -->
+<div class="sec" id="s8">
+<div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+<div class="sec-num">8</div><h2>📁 文件 IO：数据的存取之道</h2><span class="sec-arrow">▼</span>
+</div>
+<div class="sec-body">
+
+<h3>8.1 四大文件格式对比</h3>
+<table class="tb">
+<tr><th>格式</th><th>速度</th><th>可读性</th><th>适用场景</th><th>推荐度</th></tr>
+<tr><td>TXT / CSV</td><td>⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>小数据量、需要 Excel 打开、配置文件</td><td>适合入门</td></tr>
+<tr><td>二进制 Binary</td><td>⭐⭐⭐⭐⭐</td><td>⭐</td><td>高速采集、大量数据（>10万行）</td><td>性能最优</td></tr>
+<tr><td>TDMS</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>测试测量数据、含属性描述、NI 工具链</td><td>⭐⭐⭐ 强烈推荐</td></tr>
+<tr><td>INI Config</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>软件配置、参数保存、用户设置</td><td>配置文件专用</td></tr>
+</table>
+
+<h3>8.2 CSV 文件读写模板</h3>
+<div class="code-block"><span class="cm">📌 写入 CSV（保存测试数据）：</span>
+<span class="fn">Write Delimited Spreadsheet.vi</span>
+  - file path：用户选择的保存路径
+  - 2D data：你的数据数组（每行一条记录）
+  - delimiter：逗号(,) 或 Tab(\t)
+  - append to file?：True = 追加，False = 覆盖</div>
+
+<div class="code-block"><span class="cm">📌 读取 CSV（加载测试数据）：</span>
+<span class="fn">Read Delimited Spreadsheet.vi</span>
+  - file path：要读取的文件
+  - delimiter：和写入时一致
+  - 输出 all rows：二维字符串数组 → 需要转数值</div>
+
+<h3>8.3 TDMS —— NI 推荐的数据格式</h3>
+<p>TDMS（Technical Data Management Streaming）是 NI 为测试测量专门设计的二进制格式。它比 CSV 快 10-100 倍，同时保留结构化的属性描述。</p>
+
+<div class="code-block"><span class="cm">📌 TDMS 结构：</span>
+文件(.tdms)
+  ├── 通道组（Group）"电池1#"
+  │    ├── 通道 "电压" ── [3.80, 3.82, 3.85, ...]
+  │    ├── 通道 "电流" ── [1.20, 1.22, 1.19, ...]
+  │    └── 属性 "测试人员" = "张三"
+  └── 通道组（Group）"电池2#"
+       └── ...</div>
+
+<div class="tip"><strong>💡 为什么推荐 TDMS：</strong>① 读写速度快；② 文件小；③ 每个通道可加描述属性；④ NI DIAdem、DataFinder 等工具直接读取；⑤ 支持流式写入，采集过程中随时保存不丢数据。</div>
+
+</div></div>
+
+<!-- ===== 9 ===== -->
+<div class="sec" id="s9">
+<div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+<div class="sec-num">9</div><h2>🔍 调试与错误处理：写出可靠的程序</h2><span class="sec-arrow">▼</span>
+</div>
+<div class="sec-body">
+
+<h3>9.1 调试三神器</h3>
+<div class="pattern-grid">
+<div class="pattern-card"><h4>💡 探针 Probe</h4><p>在连线上右键 → Probe，打开探针窗口，<b>实时</b>显示该连线的当前值。不用改任何代码！</p></div>
+<div class="pattern-card"><h4>🔦 高亮执行</h4><p>点击工具栏的💡灯泡按钮。数据以动画气泡沿着连线流动，<b>直观看到</b>数据流向和执行顺序。</p></div>
+<div class="pattern-card"><h4>⏸ 断点 Breakpoint</h4><p>在节点或连线上右键 → Set Breakpoint。程序运行到此处<b>自动暂停</b>，检查所有变量的值。</p></div>
+</div>
+
+<h3>9.2 错误簇 —— LabVIEW 的「神经系统」</h3>
+<p>错误簇包含三个字段：<b>Status</b>（布尔，是否出错）、<b>Code</b>（整数，错误码）、<b>Source</b>（字符串，错误来源）。</p>
+
+<div class="code-block"><span class="cm">📌 错误处理的黄金法则：</span>
+每个子 VI 都有 <span class="kw">Error In</span> ──────────→ <span class="kw">Error Out</span>
+                                     │
+如果 Error In 有错误 → 子 VI 内部 <b>自动跳过所有操作</b>
+                  → 错误原封不动从 Error Out 传出
+                  → 一级一级传到最后 → Simple Error Handler 弹窗提示用户</div>
+
+<div class="warn"><strong>⚠ 常见错误：</strong>忘记把 Error 簇串联起来！如果几个子 VI 并行放置但 Error 线断了，其中一个出错其他还在执行，导致更严重的连锁错误。永远保持 Error 链完整。</div>
+
+<h3>9.3 自定义错误码</h3>
+<p>在自己的子 VI 中定义项目专属的错误码：</p>
+<ul>
+<li>建议范围：<b>5000-9999</b>（NI 保留 0-4999）</li>
+<li>用 <b>Error Cluster From Error Code.vi</b> 创建自定义错误</li>
+<li>在项目中统一维护一个错误码定义表（Excel 或文档）</li>
+</ul>
+
+</div></div>
+
+<!-- ===== 10 ===== -->
+<div class="sec" id="s10">
+<div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+<div class="sec-num">10</div><h2>🏗 设计模式：写出专业级代码</h2><span class="sec-arrow">▼</span>
+</div>
+<div class="sec-body">
+
+<h3>10.1 状态机（State Machine）—— 最基础也最重要</h3>
+<p>状态机 = While 循环 + Case 结构 + 移位寄存器（存储当前状态枚举）。</p>
+
+<div class="code-block"><span class="cm">📌 状态机模板：</span>
+While 循环 ──────────────────────────────┐
+│                                          │
+├─ Case 结构（选择器 = 移位寄存器的「当前状态」） │
+│   ├─ <span class="str">"Initialize"</span>：初始化仪器 → 下一状态 = <span class="str">"Idle"</span>
+│   ├─ <span class="str">"Idle"</span>：等待 → 用户点开始 → 下一状态 = <span class="str">"Run"</span>
+│   ├─ <span class="str">"Run"</span>：执行测试 → 完成 → 下一状态 = <span class="str">"Save"</span>
+│   ├─ <span class="str">"Save"</span>：保存数据 → 下一状态 = <span class="str">"Idle"</span>
+│   ├─ <span class="str">"Stop"</span>：清理资源 → While 停止 = True
+│   └─ <span class="str">"Error"</span>：显示错误 → 下一状态 = <span class="str">"Stop"</span>
+│                                          │
+└─ 移位寄存器 ← 更新「下一个状态」         │
+──────────────────────────────────────────┘</div>
+
+<div class="tip"><strong>💡 状态机适用场景：</strong>任何有明确步骤流程的程序——电池测试序列（初始化→CC充电→CV充电→静置→放电→循环判断→停止）、仪器自动校准、产线测试流程。</div>
+
+<h3>10.2 生产者-消费者模式 —— 界面不卡的秘诀</h3>
+<p>这是 LabVIEW 中解决「界面卡死」的王牌架构。</p>
+
+<div class="code-block"><span class="cm">📌 两个并行循环通过「队列」通信：</span>
+┌─────────────────────┐     Queue      ┌─────────────────────┐
+│ 🔝 生产者循环         │ ───────────→ │ 🔽 消费者循环         │
+│ (Event 结构)         │   Enqueue     │ (处理耗时任务)       │
+│                     │               │                     │
+│ • 处理按钮点击       │               │ • 仪器通信           │
+│ • 处理参数修改       │               │ • 数据采集           │
+│ • 响应快（毫秒级）   │               │ • 文件保存           │
+│ • 不放耗时操作       │               │ • 数据处理           │
+└─────────────────────┘               └─────────────────────┘</div>
+
+<div class="warn"><strong>⚠ 为什么不用一个循环？</strong>如果把耗时操作放在 Event 结构的 Value Change 事件里，界面会「卡死」直到操作完成。生产者-消费者模式让 UI 永远响应流畅。</div>
+
+<h3>10.3 QMH（Queued Message Handler）—— 工业界标准架构</h3>
+<p>QMH = 队列 + 状态机 + 事件驱动。这是工业级 LabVIEW 项目的事实标准。</p>
+<ul>
+<li>每个「消息」是一个字符串命令（如 "Acquire", "Save", "Stop"）</li>
+<li>生产者把消息（可附带数据）Enqueue 到队列</li>
+<li>消费者 Dequeue 消息，用 Case 结构分发处理</li>
+<li>可扩展为多个消费者（一个采集、一个显示、一个存储）</li>
+</ul>
+
+<div class="success"><strong>🚀 进阶建议：</strong>先把状态机和生产者-消费者模式练熟，再学 QMH。这三个模式覆盖了 95% 的项目需求。</div>
+
+</div></div>
+
+<!-- ===== 11 ===== -->
+<div class="sec" id="s11">
+<div class="sec-head" onclick="this.parentElement.classList.toggle('open')">
+<div class="sec-num">11</div><h2>🚀 从零到独立编程：完整学习模板</h2><span class="sec-arrow">▼</span>
+</div>
+<div class="sec-body">
+
+<h3>11.1 小白学习路线图（按天执行）</h3>
+
+<table class="tb">
+<tr><th>阶段</th><th>天数</th><th>学什么</th><th>做什么练习</th><th>达标标准</th></tr>
+<tr><td>入门</td><td>第1-3天</td><td>界面认识、控件放置、连线规则、Ctrl+H 帮助</td><td>做 3 个 VI：加法器、温度转换、灯光开关</td><td>能独立创建 VI，知道前面板和框图的区别</td></tr>
+<tr><td>数据类型</td><td>第4-7天</td><td>数值/布尔/字符串/枚举、类型转换、比较运算</td><td>计算器（加减乘除）、密码登录界面</td><td>能识别连线颜色，理解不同数据类型</td></tr>
+<tr><td>程序结构</td><td>第8-14天</td><td>For/While/Case/Event/移位寄存器</td><td>猜数字游戏、波形滚动显示、状态切换程序</td><td>能独立选用正确的循环和结构</td></tr>
+<tr><td>数组与簇</td><td>第15-18天</td><td>数组操作函数、簇打包解包、Chart/Graph</td><td>成绩管理、多通道波形显示</td><td>能处理批量数据和图表</td></tr>
+<tr><td>模块化</td><td>第19-22天</td><td>子 VI 创建、连接器、图标、Error 簇串联</td><td>把之前写的功能封装为子 VI</td><td>所有子 VI 都有 Error In/Out</td></tr>
+<tr><td>文件 IO</td><td>第23-26天</td><td>TXT/CSV/二进制/TDMS/INI 读写</td><td>数据记录器（含保存和读取功能）</td><td>能选择正确的文件格式</td></tr>
+<tr><td>调试</td><td>第27-28天</td><td>探针、断点、高亮执行、Error 处理</td><td>故意制造 bug 然后调试修复</td><td>能定位和修复代码中的问题</td></tr>
+<tr><td>硬件</td><td>第29-40天</td><td>VISA 串口、DAQ 采集、SCPI 命令</td><td>串口助手、温度采集系统</td><td>能通过 LabVIEW 控制外部设备</td></tr>
+<tr><td>架构</td><td>第41-50天</td><td>状态机、生产者-消费者、QMH</td><td>电池测试序列、多任务系统</td><td>能设计清晰的程序架构</td></tr>
+<tr><td>项目</td><td>第51-60天</td><td>完整项目：需求→设计→编码→测试→发布</td><td>自选一个完整项目独立完成</td><td>从零交付完整项目</td></tr>
+</table>
+
+<h3>11.2 每个阶段的学习模板</h3>
+<p><b>⭐⭐⭐ 强烈建议使用「三步学习法」：</b></p>
+<div class="step"><span class="step-num">1</span><h4>看范例（15分钟）</h4><p>打开 Help → Find Examples，搜索相关关键词，运行官方范例，观察效果。</p></div>
+<div class="step"><span class="step-num">2</span><h4>动手改（30分钟）</h4><p>在范例基础上修改：改参数、加功能、换控件。改动是学习的最好方式。</p></div>
+<div class="step"><span class="step-num">3</span><h4>独立写（1小时）</h4><p>关掉范例，从空白 VI 开始自己写一遍。遇到不会的用 Ctrl+H 查帮助，不翻看之前的代码。</p></div>
+
+<div class="tip"><strong>💡 学习心法：</strong>很多人看教程觉得「懂了」，但一上手就懵。原因是没有做第 3 步——<b>独立写一遍</b>。只有不看任何参考、从零写出来，才是真的学会了。</div>
+
+<h3>11.3 新手常见的 5 个坑（提前知道少走弯路）</h3>
+<ol>
+<li><b>❌ 过度使用顺序结构</b> → ✅ 用数据依赖和 Error 簇代替，让 LabVIEW 自然并行</li>
+<li><b>❌ 所有代码堆在一个 VI 里</b> → ✅ 及时抽成子 VI，保持每个 VI 不超过一屏</li>
+<li><b>❌ 忘记 Error In/Out</b> → ✅ 每个子 VI 都必须有 Error 簇端子，这是铁律</li>
+<li><b>❌ 用局部变量通信</b> → ✅ 用连线、移位寄存器、队列传递数据，避免竞态条件</li>
+<li><b>❌ 前面板控件乱放</b> → ✅ 用对齐工具、统一间距、分类分区，界面就是产品质量的一部分</li>
+</ol>
+
+<h3>11.4 从「会写代码」到「能独立做项目」的跨越</h3>
+<p>会写代码 ≠ 会做项目。独立做项目需要额外掌握：</p>
+<ul>
+<li><b>需求分析</b>：跟用户确认「到底要做什么」，写下来双方确认</li>
+<li><b>架构设计</b>：先画结构图再编码，选对设计模式事半功倍</li>
+<li><b>版本管理</b>：文件命名带日期版本（如 BatteryTest_v2.1_20260724.vi）</li>
+<li><b>测试方法</b>：写 Simulation 模式的子 VI，没硬件也能测逻辑</li>
+<li><b>发布打包</b>：生成 EXE + 安装包，用户不需要装 LabVIEW 就能运行</li>
+</ul>
+
+<div class="success"><strong>🎯 检验标准：</strong>当你能够<br>
+① 拿到需求 → ② 设计架构 → ③ 编写代码 → ④ 联调硬件 → ⑤ 测试通过 → ⑥ 打包发布<br>
+走完这 6 步，你就真正从「学习者」变成了「LabVIEW 工程师」。</div>
+
+</div></div>
+
+</div><!-- /container -->
+
+<footer class="footer">
+LabVIEW 深度学习教程 · 从零基础到独立编程 · 配合「学习计划」使用效果更佳 🚀
+</footer>
+
+<script>
+document.querySelectorAll('.sec-head').forEach(h=>{
+h.addEventListener('click',function(){this.parentElement.classList.toggle('open')})
+})
+</script>
+</body>
+</html>
